@@ -139,25 +139,31 @@ public class RouletteGame {
         bets.add(new Bet(28, 12));
         bets.add(new Bet(-1, -1)); // Ignora
 
-        boolean stopGame = false;
-        for (Bet bet : bets) {
-            if (bet.shouldIgnore()) {
-                System.out.println((stopGame ? "X " : ". ") + bet);
-                continue;
-            }
+        boolean stopGame;
+        for (int round = 0; round < 10; round++) { // Play 10 rounds
+            stopGame = false;
+            StringBuilder results = new StringBuilder();
 
-            if (stopGame) {
-                System.out.println("X " + bet);
-                continue;
-            }
+            for (Bet bet : bets) {
+                if (bet.shouldIgnore()) {
+                    results.append((stopGame ? "X " : ". ") + bet).append("\n");
+                    continue;
+                }
 
-            int result = roulette.spin();
-            if (bet.isWinningNumber(result)) {
-                System.out.println("X " + bet + " (" + result + ")");
-                stopGame = true;
-            } else {
-                System.out.println(". " + bet + " (" + result + ")");
+                if (stopGame) {
+                    results.append("X ").append(bet).append("\n");
+                    continue;
+                }
+
+                int result = roulette.spin();
+                if (bet.isWinningNumber(result)) {
+                    results.append("X ").append(bet).append(" (").append(result).append(")").append("\n");
+                    stopGame = true;
+                } else {
+                    results.append(". ").append(bet).append(" (").append(result).append(")").append("\n");
+                }
             }
+            System.out.println(results.toString());
         }
     }
 }
