@@ -102,7 +102,7 @@ public class RouletteGameFrame extends JFrame {
         int totalBets = 0;
         int firstFailureRow = -1;
         int firstFailureSeries = -1;
-        int totalSeries = 5;
+        int totalSeries = 100;
         
         for (int series = 0; series < totalSeries; series++) {
             boolean stopGame = false;
@@ -153,10 +153,12 @@ public class RouletteGameFrame extends JFrame {
             for (int i = 0; i < runtimeBets.size(); i++) {
                 if (results.get(i).charAt(series) == '.') {
                     totalDots++;
+                    totalBets++;
+                }
+                if (results.get(i).charAt(series) != '=') {
+                    totalBets++;
                 }
             }
-
-            totalBets++;
         }
 
         StringBuilder resultText = new StringBuilder();
@@ -164,7 +166,7 @@ public class RouletteGameFrame extends JFrame {
             resultText.append(results.get(i).toString()).append(" ").append(runtimeBets.get(i)).append("\n");
         }
 
-        double averageDots = totalBets > 0 ? (double) totalDots / totalBets : 0;
+        double averageDots = totalBets > 0 ? (double) totalDots / totalSeries : 0;
         resultText.append("\nMedia dei punti (ovvero delle vittorie): ").append(averageDots);
 
         if (firstFailureRow != -1) {
