@@ -112,7 +112,7 @@ public class RouletteGameFrame extends JFrame {
                     if (attempts < retryCount) {
                         attempts++;
                         if (bet.shouldIgnore()) {
-                            results.get(i).insert(0, ".");
+                            results.get(i).insert(0, "=");
                             continue;
                         } else {
                             stopGame = false;
@@ -124,7 +124,7 @@ public class RouletteGameFrame extends JFrame {
                 }
 
                 if (bet.shouldIgnore()) {
-                    results.get(i).insert(0, ".");
+                    results.get(i).insert(0, "=");
                     continue;
                 }
 
@@ -158,12 +158,13 @@ public class RouletteGameFrame extends JFrame {
             resultText.append(result.toString()).append("\n");
         }
 
-        // Calcoliamo la media correttamente
+        // Calcoliamo la media correttamente, escludendo "=" dalle vittorie
         double averageDots = totalBets > 0 ? (double) totalDots / totalBets : 0;
         resultText.append("\nMedia dei punti (ovvero delle vittorie): ").append(averageDots);
 
         resultTextArea.setText(resultText.toString());
     }
+
 
     private List<Bet> parseBetsFromTextArea() {
         List<Bet> runtimeBets = new ArrayList<>();
