@@ -100,8 +100,10 @@ public class RouletteGameFrame extends JFrame {
 
         int totalDots = 0;
         int totalBets = 0;
+        int firstFailureRow = -1;
+        int firstFailureSeries = -1;
 
-        for (int round = 0; round < 100; round++) {
+        for (int series = 0; series < 5; series++) {
             boolean stopGame = false;
             int attempts = 0;
 
@@ -112,34 +114,43 @@ public class RouletteGameFrame extends JFrame {
                     if (attempts < retryCount) {
                         attempts++;
                         if (bet.shouldIgnore()) {
-                            results.get(i).insert(0, "=");
+                            results.get(i).append("=");
                             continue;
                         } else {
                             stopGame = false;
                         }
                     } else {
-                        results.get(i).insert(0, "X");
+                        results.get(i).append("X");
+                        if (firstFailureRow == -1 || (i < firstFailureRow || (i == firstFailureRow && series < firstFailureSeries))) {
+                            firstFailureRow = i;
+                            firstFailureSeries = series;
+                        }
                         continue;
                     }
                 }
 
                 if (bet.shouldIgnore()) {
-                    results.get(i).insert(0, "=");
+                    results.get(i).append("=");
                     continue;
                 }
 
                 int result = roulette.spin();
                 if (bet.isWinningNumber(result)) {
-                    results.get(i).insert(0, "X");
+                    results.get(i).append("X");
                     stopGame = true;
+
+                    if (firstFailureRow == -1 || (i < firstFailureRow || (i == firstFailureRow && series < firstFailureSeries))) {
+                        firstFailureRow = i;
+                        firstFailureSeries = series;
+                    }
+
                 } else {
-                    results.get(i).insert(0, ".");
+                    results.get(i).append(".");
                 }
             }
 
-            // Contiamo i punti per ogni round correttamente
             for (int i = 0; i < runtimeBets.size(); i++) {
-                if (results.get(i).charAt(0) == '.') {
+                if (results.get(i).charAt(series) == '.') {
                     totalDots++;
                 }
             }
@@ -147,23 +158,25 @@ public class RouletteGameFrame extends JFrame {
             totalBets++;
         }
 
-        // Aggiungi la scommessa originale alla fine di ogni risultato
-        for (int i = 0; i < runtimeBets.size(); i++) {
-            results.get(i).append(" ").append(runtimeBets.get(i));
-        }
-
-        // Stampa i risultati finali nell'area di testo
         StringBuilder resultText = new StringBuilder();
-        for (StringBuilder result : results) {
-            resultText.append(result.toString()).append("\n");
+        for (int i = 0; i < runtimeBets.size(); i++) {
+            resultText.append(results.get(i).toString()).append(" ").append(runtimeBets.get(i)).append("\n");
         }
 
-        // Calcoliamo la media correttamente, escludendo "=" dalle vittorie
         double averageDots = totalBets > 0 ? (double) totalDots / totalBets : 0;
         resultText.append("\nMedia dei punti (ovvero delle vittorie): ").append(averageDots);
 
+        if (firstFailureRow != -1) {
+            resultText.append("\nIl primo fallimento si registra dopo ").append(firstFailureRow + 1)
+                      .append(" tentativi nella serie ").append(firstFailureSeries + 1).append(".");
+        } else {
+            resultText.append("\nNon ci sono stati fallimenti nelle serie.");
+        }
+
         resultTextArea.setText(resultText.toString());
     }
+
+
 
 
     private List<Bet> parseBetsFromTextArea() {
