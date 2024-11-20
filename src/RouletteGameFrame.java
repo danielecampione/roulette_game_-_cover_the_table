@@ -11,6 +11,7 @@ public class RouletteGameFrame extends JFrame {
     private JTextArea seriesTextArea;
     private JTextArea resultTextArea;
     private JButton startButton;
+    private JComboBox<Integer> retryComboBox;
     private List<Bet> bets;
     private Path seriesFilePath;
 
@@ -53,12 +54,20 @@ public class RouletteGameFrame extends JFrame {
         startButton.setFont(new Font("Arial", Font.PLAIN, 16));
         startButton.addActionListener(e -> startExtraction());
 
+        retryComboBox = new JComboBox<>(new Integer[]{0, 1, 2, 3});
+        retryComboBox.setSelectedIndex(0);
+        retryComboBox.setFont(new Font("Arial", Font.PLAIN, 16));
+        JPanel retryPanel = new JPanel(new BorderLayout());
+        retryPanel.add(new JLabel("Ritenta in caso di sconfitta"), BorderLayout.NORTH);
+        retryPanel.add(retryComboBox, BorderLayout.CENTER);
+
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, seriesScrollPane, resultScrollPane);
         splitPane.setResizeWeight(0.5);
         splitPane.setDividerLocation(300);
 
         setLayout(new BorderLayout());
         add(splitPane, BorderLayout.CENTER);
+        add(retryPanel, BorderLayout.WEST);
         add(startButton, BorderLayout.SOUTH);
 
         displaySeries();
@@ -78,6 +87,7 @@ public class RouletteGameFrame extends JFrame {
             saveBetsToFile(runtimeBets);
         }
 
+        int retryCount = (int) retryComboBox.getSelectedItem();
         Roulette roulette = new Roulette();
         List<StringBuilder> results = new ArrayList<>();
         for (int i = 0; i < runtimeBets.size(); i++) {
@@ -89,15 +99,28 @@ public class RouletteGameFrame extends JFrame {
 
         for (int round = 0; round < 100; round++) {
             boolean stopGame = false;
+            int attempts = 0;
+
             for (int i = 0; i < runtimeBets.size(); i++) {
                 Bet bet = runtimeBets.get(i);
-                if (bet.shouldIgnore()) {
-                    results.get(i).insert(0, stopGame ? "X" : ".");
-                    continue;
-                }
 
                 if (stopGame) {
-                    results.get(i).insert(0, "X");
+                    if (attempts < retryCount) {
+                        attempts++;
+                        if (bet.shouldIgnore()) {
+                            results.get(i).insert(0, ".");
+                            continue;
+                        } else {
+                            stopGame = false;
+                        }
+                    } else {
+                        results.get(i).insert(0, "X");
+                        continue;
+                    }
+                }
+
+                if (bet.shouldIgnore()) {
+                    results.get(i).insert(0, ".");
                     continue;
                 }
 
@@ -110,16 +133,10 @@ public class RouletteGameFrame extends JFrame {
                 }
             }
 
-            // Conta i punti per ogni round
-            if (!stopGame) {
-                totalDots += runtimeBets.size();
-            } else {
-                for (int i = 0; i < runtimeBets.size(); i++) {
-                    if (results.get(i).charAt(0) == '.') {
-                        totalDots++;
-                    } else {
-                        break;
-                    }
+            // Contiamo i punti per ogni round correttamente
+            for (int i = 0; i < runtimeBets.size(); i++) {
+                if (results.get(i).charAt(0) == '.') {
+                    totalDots++;
                 }
             }
 
@@ -137,7 +154,8 @@ public class RouletteGameFrame extends JFrame {
             resultText.append(result.toString()).append("\n");
         }
 
-        double averageDots = (double) totalDots / totalBets;
+        // Calcoliamo la media correttamente
+        double averageDots = totalBets > 0 ? (double) totalDots / totalBets : 0;
         resultText.append("\nMedia dei punti (ovvero delle vittorie): ").append(averageDots);
 
         resultTextArea.setText(resultText.toString());
