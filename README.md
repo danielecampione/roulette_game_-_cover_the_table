@@ -1,7 +1,7 @@
 # Roulette Game - "Cover the Table" (aka "Cover All Bases") extraction method
 Play the classic European roulette written in Java by using the "Cover The Table" (also known as "Cover All Bases") extraction method.
 
-Example of a series (example of the content of the file "series.txt" that must be in the same folder where the executable JAR resides): {
+Example of a series (example of the content of the file "serie.txt" that must be in the same folder where the executable JAR resides): {
 ```
 1 2
 3 4
