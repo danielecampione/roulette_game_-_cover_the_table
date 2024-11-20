@@ -1,5 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,9 +12,11 @@ public class RouletteGameFrame extends JFrame {
     private JTextArea resultTextArea;
     private JButton startButton;
     private List<Bet> bets;
+    private Path seriesFilePath;
 
-    public RouletteGameFrame(List<Bet> bets) {
-        this.bets = bets;
+    public RouletteGameFrame(Path seriesFilePath) {
+        this.seriesFilePath = seriesFilePath;
+        this.bets = loadBetsFromFile();
         setLookAndFeel();
         initializeUI();
     }
@@ -68,6 +74,10 @@ public class RouletteGameFrame extends JFrame {
 
     private void startExtraction() {
         List<Bet> runtimeBets = parseBetsFromTextArea();
+        if (!runtimeBets.equals(bets)) {
+            saveBetsToFile(runtimeBets);
+        }
+
         Roulette roulette = new Roulette();
         List<StringBuilder> results = new ArrayList<>();
         for (int i = 0; i < runtimeBets.size(); i++) {
@@ -157,144 +167,46 @@ public class RouletteGameFrame extends JFrame {
         return runtimeBets;
     }
 
-    public static void main(String[] args) {
-        List<Bet> bets = new ArrayList<>();
-        bets.add(new Bet(17, 34));
-        bets.add(new Bet(2, 25));
-        bets.add(new Bet(4, 21));
-        bets.add(new Bet(6, 27));
-        bets.add(new Bet(13, 36));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(22, 18));
-        bets.add(new Bet(31, 9));
-        bets.add(new Bet(20, 14));
-        bets.add(new Bet(29, 7));
-        bets.add(new Bet(28, 12));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(17, 34));
-        bets.add(new Bet(2, 25));
-        bets.add(new Bet(4, 21));
-        bets.add(new Bet(6, 27));
-        bets.add(new Bet(13, 36));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(22, 18));
-        bets.add(new Bet(31, 9));
-        bets.add(new Bet(20, 14));
-        bets.add(new Bet(29, 7));
-        bets.add(new Bet(28, 12));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(17, 34));
-        bets.add(new Bet(2, 25));
-        bets.add(new Bet(4, 21));
-        bets.add(new Bet(6, 27));
-        bets.add(new Bet(13, 36));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(22, 18));
-        bets.add(new Bet(31, 9));
-        bets.add(new Bet(20, 14));
-        bets.add(new Bet(29, 7));
-        bets.add(new Bet(28, 12));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(17, 34));
-        bets.add(new Bet(2, 25));
-        bets.add(new Bet(4, 21));
-        bets.add(new Bet(6, 27));
-        bets.add(new Bet(13, 36));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(22, 18));
-        bets.add(new Bet(31, 9));
-        bets.add(new Bet(20, 14));
-        bets.add(new Bet(29, 7));
-        bets.add(new Bet(28, 12));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(17, 34));
-        bets.add(new Bet(2, 25));
-        bets.add(new Bet(4, 21));
-        bets.add(new Bet(6, 27));
-        bets.add(new Bet(13, 36));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(22, 18));
-        bets.add(new Bet(31, 9));
-        bets.add(new Bet(20, 14));
-        bets.add(new Bet(29, 7));
-        bets.add(new Bet(28, 12));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(17, 34));
-        bets.add(new Bet(2, 25));
-        bets.add(new Bet(4, 21));
-        bets.add(new Bet(6, 27));
-        bets.add(new Bet(13, 36));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(22, 18));
-        bets.add(new Bet(31, 9));
-        bets.add(new Bet(20, 14));
-        bets.add(new Bet(29, 7));
-        bets.add(new Bet(28, 12));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(17, 34));
-        bets.add(new Bet(2, 25));
-        bets.add(new Bet(4, 21));
-        bets.add(new Bet(6, 27));
-        bets.add(new Bet(13, 36));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(22, 18));
-        bets.add(new Bet(31, 9));
-        bets.add(new Bet(20, 14));
-        bets.add(new Bet(29, 7));
-        bets.add(new Bet(28, 12));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(17, 34));
-        bets.add(new Bet(2, 25));
-        bets.add(new Bet(4, 21));
-        bets.add(new Bet(6, 27));
-        bets.add(new Bet(13, 36));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(22, 18));
-        bets.add(new Bet(31, 9));
-        bets.add(new Bet(20, 14));
-        bets.add(new Bet(29, 7));
-        bets.add(new Bet(28, 12));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(17, 34));
-        bets.add(new Bet(2, 25));
-        bets.add(new Bet(4, 21));
-        bets.add(new Bet(6, 27));
-        bets.add(new Bet(13, 36));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(22, 18));
-        bets.add(new Bet(31, 9));
-        bets.add(new Bet(20, 14));
-        bets.add(new Bet(29, 7));
-        bets.add(new Bet(28, 12));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(17, 34));
-        bets.add(new Bet(2, 25));
-        bets.add(new Bet(4, 21));
-        bets.add(new Bet(6, 27));
-        bets.add(new Bet(13, 36));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(22, 18));
-        bets.add(new Bet(31, 9));
-        bets.add(new Bet(20, 14));
-        bets.add(new Bet(29, 7));
-        bets.add(new Bet(28, 12));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(17, 34));
-        bets.add(new Bet(2, 25));
-        bets.add(new Bet(4, 21));
-        bets.add(new Bet(6, 27));
-        bets.add(new Bet(13, 36));
-        bets.add(new Bet(-1, -1)); // Ignora
-        bets.add(new Bet(22, 18));
-        bets.add(new Bet(31, 9));
-        bets.add(new Bet(20, 14));
-        bets.add(new Bet(29, 7));
-        bets.add(new Bet(28, 12));
-        bets.add(new Bet(-1, -1)); // Ignora
+    private List<Bet> loadBetsFromFile() {
+        List<Bet> loadedBets = new ArrayList<>();
+        try {
+            List<String> lines = Files.readAllLines(seriesFilePath);
+            for (String line : lines) {
+                String[] numbers = line.split(" ");
+                if (numbers.length == 2) {
+                    try {
+                        int bet1 = Integer.parseInt(numbers[0].trim());
+                        int bet2 = Integer.parseInt(numbers[1].trim());
+                        loadedBets.add(new Bet(bet1, bet2));
+                    } catch (NumberFormatException e) {
+                        loadedBets.add(new Bet(-1, -1)); // Ignora
+                    }
+                } else {
+                    loadedBets.add(new Bet(-1, -1)); // Ignora
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return loadedBets;
+    }
 
+    private void saveBetsToFile(List<Bet> bets) {
+        try (BufferedWriter writer = Files.newBufferedWriter(seriesFilePath)) {
+            for (Bet bet : bets) {
+                writer.write(bet.toString());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        Path seriesFilePath = Paths.get("serie.txt");
 
         SwingUtilities.invokeLater(() -> {
-            RouletteGameFrame frame = new RouletteGameFrame(bets);
+            RouletteGameFrame frame = new RouletteGameFrame(seriesFilePath);
             frame.setVisible(true);
         });
     }
