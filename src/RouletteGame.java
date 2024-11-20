@@ -144,6 +144,9 @@ public class RouletteGame {
             results.add(new StringBuilder());
         }
 
+        int totalDots = 0;
+        int totalBets = 0;
+        
         for (int round = 0; round < 100; round++) {
             boolean stopGame = false;
             for (int i = 0; i < bets.size(); i++) {
@@ -166,6 +169,21 @@ public class RouletteGame {
                     results.get(i).insert(0, ".");
                 }
             }
+            
+            // Conta i punti per ogni round
+            if (!stopGame) {
+                totalDots += bets.size();
+            } else {
+                for (int i = 0; i < bets.size(); i++) {
+                    if (results.get(i).charAt(0) == '.') {
+                        totalDots++;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            totalBets++;
         }
 
         // Aggiungi la scommessa originale alla fine di ogni risultato
@@ -177,5 +195,8 @@ public class RouletteGame {
         for (StringBuilder result : results) {
             System.out.println(result.toString());
         }
+        
+        double averageDots = (double) totalDots / totalBets;
+        System.out.println("\nMedia dei punti (ovvero delle vittorie): " + averageDots);
     }
 }
