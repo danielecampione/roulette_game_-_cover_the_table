@@ -95,4 +95,4 @@ ignora
 ```
 }
 
-![Png]([https://i.ibb.co/YNf9V89/Immagine-2024-11-04-223327.png](https://i.ibb.co/tCqtm7c/Immagine-2024-11-21-000005.png))
+![Png](https://i.ibb.co/tCqtm7c/Immagine-2024-11-21-000005.png)
