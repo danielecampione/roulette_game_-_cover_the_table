@@ -32,7 +32,7 @@ public class RouletteGameFrame extends JFrame {
         setLocationRelativeTo(null);
 
         seriesTextArea = new JTextArea();
-        seriesTextArea.setEditable(false);
+        seriesTextArea.setEditable(true);
         seriesTextArea.setFont(new Font("Courier New", Font.PLAIN, 16));
         JScrollPane seriesScrollPane = new JScrollPane(seriesTextArea);
         seriesScrollPane.setBorder(BorderFactory.createTitledBorder("Serie"));
@@ -61,16 +61,16 @@ public class RouletteGameFrame extends JFrame {
     private void displaySeries() {
         StringBuilder seriesBuilder = new StringBuilder();
         for (Bet bet : bets) {
-            if (bet.shouldIgnore()) continue;
             seriesBuilder.append(bet.toString()).append("\n");
         }
         seriesTextArea.setText(seriesBuilder.toString());
     }
 
     private void startExtraction() {
+        List<Bet> runtimeBets = parseBetsFromTextArea();
         Roulette roulette = new Roulette();
         List<StringBuilder> results = new ArrayList<>();
-        for (int i = 0; i < bets.size(); i++) {
+        for (int i = 0; i < runtimeBets.size(); i++) {
             results.add(new StringBuilder());
         }
 
@@ -79,8 +79,8 @@ public class RouletteGameFrame extends JFrame {
 
         for (int round = 0; round < 100; round++) {
             boolean stopGame = false;
-            for (int i = 0; i < bets.size(); i++) {
-                Bet bet = bets.get(i);
+            for (int i = 0; i < runtimeBets.size(); i++) {
+                Bet bet = runtimeBets.get(i);
                 if (bet.shouldIgnore()) {
                     results.get(i).insert(0, stopGame ? "X" : ".");
                     continue;
@@ -102,9 +102,9 @@ public class RouletteGameFrame extends JFrame {
 
             // Conta i punti per ogni round
             if (!stopGame) {
-                totalDots += bets.size();
+                totalDots += runtimeBets.size();
             } else {
-                for (int i = 0; i < bets.size(); i++) {
+                for (int i = 0; i < runtimeBets.size(); i++) {
                     if (results.get(i).charAt(0) == '.') {
                         totalDots++;
                     } else {
@@ -117,8 +117,8 @@ public class RouletteGameFrame extends JFrame {
         }
 
         // Aggiungi la scommessa originale alla fine di ogni risultato
-        for (int i = 0; i < bets.size(); i++) {
-            results.get(i).append(" ").append(bets.get(i));
+        for (int i = 0; i < runtimeBets.size(); i++) {
+            results.get(i).append(" ").append(runtimeBets.get(i));
         }
 
         // Stampa i risultati finali nell'area di testo
@@ -131,6 +131,30 @@ public class RouletteGameFrame extends JFrame {
         resultText.append("\nMedia dei punti (ovvero delle vittorie): ").append(averageDots);
 
         resultTextArea.setText(resultText.toString());
+    }
+
+    private List<Bet> parseBetsFromTextArea() {
+        List<Bet> runtimeBets = new ArrayList<>();
+        String[] lines = seriesTextArea.getText().split("\\n");
+        for (String line : lines) {
+            String[] numbers = line.split(" ");
+            if (numbers.length == 2) {
+                try {
+                    int bet1 = Integer.parseInt(numbers[0].trim());
+                    int bet2 = Integer.parseInt(numbers[1].trim());
+                    if ((bet1 >= 0 && bet1 <= 36) && (bet2 >= 0 && bet2 <= 36)) {
+                        runtimeBets.add(new Bet(bet1, bet2));
+                    } else {
+                        runtimeBets.add(new Bet(-1, -1)); // Ignora
+                    }
+                } catch (NumberFormatException e) {
+                    runtimeBets.add(new Bet(-1, -1)); // Ignora
+                }
+            } else {
+                runtimeBets.add(new Bet(-1, -1)); // Ignora
+            }
+        }
+        return runtimeBets;
     }
 
     public static void main(String[] args) {
@@ -267,6 +291,7 @@ public class RouletteGameFrame extends JFrame {
         bets.add(new Bet(29, 7));
         bets.add(new Bet(28, 12));
         bets.add(new Bet(-1, -1)); // Ignora
+
 
         SwingUtilities.invokeLater(() -> {
             RouletteGameFrame frame = new RouletteGameFrame(bets);
