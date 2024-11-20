@@ -1,4 +1,11 @@
+/**
+ * 
+ * 
+ * @author D. Campione
+ *
+ */
 public class Bet {
+
     private int bet1;
     private int bet2;
 

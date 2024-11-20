@@ -1,17 +1,46 @@
-import javax.swing.*;
-import java.awt.*;
-import java.io.*;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+
+/**
+ * Il metodo analizzato in questa applicazione è noto come "Cover the Table" o
+ * "Cover All Bases". Questo sistema prevede di coprire quasi tutti i numeri sul
+ * tavolo della roulette, lasciando scoperti solo pochissimi numeri, come ad
+ * esempio due. L'obiettivo è massimizzare le probabilità di vincita su ogni
+ * giro della ruota, anche se il profitto per ogni vincita è generalmente basso
+ * rispetto alla puntata totale.
+ * 
+ * @author D. Campione
+ *
+ */
 public class RouletteGameFrame extends JFrame {
+
+    private static final long serialVersionUID = 5786059233469279478L;
+
     private JTextArea seriesTextArea;
     private JTextArea resultTextArea;
     private JButton startButton;
     private JComboBox<Integer> retryComboBox;
+    private JComboBox<Integer> seriesComboBox;
     private List<Bet> bets;
     private Path seriesFilePath;
 
@@ -33,7 +62,7 @@ public class RouletteGameFrame extends JFrame {
     }
 
     private void initializeUI() {
-        setTitle("Roulette Game");
+        setTitle("Roulette Game - Cover the Table, Cover All Bases ");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -42,7 +71,7 @@ public class RouletteGameFrame extends JFrame {
         seriesTextArea.setEditable(true);
         seriesTextArea.setFont(new Font("Courier New", Font.PLAIN, 16));
         JScrollPane seriesScrollPane = new JScrollPane(seriesTextArea);
-        seriesScrollPane.setBorder(BorderFactory.createTitledBorder("Serie"));
+        seriesScrollPane.setBorder(BorderFactory.createTitledBorder("Coppie escluse"));
 
         resultTextArea = new JTextArea();
         resultTextArea.setEditable(false);
@@ -54,13 +83,19 @@ public class RouletteGameFrame extends JFrame {
         startButton.setFont(new Font("Arial", Font.PLAIN, 16));
         startButton.addActionListener(e -> startExtraction());
 
-        retryComboBox = new JComboBox<>(new Integer[]{0, 1, 2, 3});
+        retryComboBox = new JComboBox<>(new Integer[] { 0, 1, 2, 3 });
         retryComboBox.setSelectedIndex(0);
         retryComboBox.setFont(new Font("Arial", Font.PLAIN, 16));
         JPanel retryPanel = new JPanel();
         retryPanel.setLayout(new BoxLayout(retryPanel, BoxLayout.Y_AXIS));
         retryPanel.add(new JLabel("Ritenta in caso di sconfitta"));
         retryPanel.add(retryComboBox);
+
+        seriesComboBox = new JComboBox<>(new Integer[] { 1, 2, 5, 10, 50, 100 });
+        seriesComboBox.setSelectedIndex(0);
+        seriesComboBox.setFont(new Font("Arial", Font.PLAIN, 16));
+        retryPanel.add(new JLabel("Giocate"));
+        retryPanel.add(seriesComboBox);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, seriesScrollPane, resultScrollPane);
         splitPane.setResizeWeight(0.5);
@@ -92,6 +127,7 @@ public class RouletteGameFrame extends JFrame {
         }
 
         int retryCount = (int) retryComboBox.getSelectedItem();
+        int seriesCount = (int) seriesComboBox.getSelectedItem();
         Roulette roulette = new Roulette();
         List<StringBuilder> results = new ArrayList<>();
         for (int i = 0; i < runtimeBets.size(); i++) {
@@ -102,9 +138,8 @@ public class RouletteGameFrame extends JFrame {
         int totalBets = 0;
         int firstFailureRow = -1;
         int firstFailureSeries = -1;
-        int totalSeries = 100;
-        
-        for (int series = 0; series < totalSeries; series++) {
+
+        for (int series = 0; series < seriesCount; series++) {
             boolean stopGame = false;
             int attempts = 0;
 
@@ -122,7 +157,8 @@ public class RouletteGameFrame extends JFrame {
                         }
                     } else {
                         results.get(i).append("X");
-                        if (firstFailureRow == -1 || (i < firstFailureRow || (i == firstFailureRow && series < firstFailureSeries))) {
+                        if (firstFailureRow == -1
+                                || (i < firstFailureRow || (i == firstFailureRow && series < firstFailureSeries))) {
                             firstFailureRow = i;
                             firstFailureSeries = series;
                         }
@@ -140,7 +176,8 @@ public class RouletteGameFrame extends JFrame {
                     results.get(i).append("X");
                     stopGame = true;
 
-                    if (firstFailureRow == -1 || (i < firstFailureRow || (i == firstFailureRow && series < firstFailureSeries))) {
+                    if (firstFailureRow == -1
+                            || (i < firstFailureRow || (i == firstFailureRow && series < firstFailureSeries))) {
                         firstFailureRow = i;
                         firstFailureSeries = series;
                     }
@@ -166,12 +203,12 @@ public class RouletteGameFrame extends JFrame {
             resultText.append(results.get(i).toString()).append(" ").append(runtimeBets.get(i)).append("\n");
         }
 
-        double averageDots = totalBets > 0 ? (double) totalDots / totalSeries : 0;
+        double averageDots = totalBets > 0 ? (double) totalDots / seriesCount : 0;
         resultText.append("\nMedia dei punti (ovvero delle vittorie): ").append(averageDots);
 
         if (firstFailureRow != -1) {
             resultText.append("\nIl primo fallimento si registra dopo ").append(firstFailureRow + 1)
-                      .append(" tentativi nella serie ").append((totalSeries - 1) - firstFailureSeries + 1).append(".");
+                    .append(" tentativi nella serie ").append((seriesCount - 1) - firstFailureSeries + 1).append(".");
         } else {
             resultText.append("\nNon ci sono stati fallimenti nelle serie.");
         }
