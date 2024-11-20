@@ -102,8 +102,9 @@ public class RouletteGameFrame extends JFrame {
         int totalBets = 0;
         int firstFailureRow = -1;
         int firstFailureSeries = -1;
-
-        for (int series = 0; series < 5; series++) {
+        int totalSeries = 5;
+        
+        for (int series = 0; series < totalSeries; series++) {
             boolean stopGame = false;
             int attempts = 0;
 
@@ -168,16 +169,13 @@ public class RouletteGameFrame extends JFrame {
 
         if (firstFailureRow != -1) {
             resultText.append("\nIl primo fallimento si registra dopo ").append(firstFailureRow + 1)
-                      .append(" tentativi nella serie ").append(firstFailureSeries + 1).append(".");
+                      .append(" tentativi nella serie ").append((totalSeries - 1) - firstFailureSeries + 1).append(".");
         } else {
             resultText.append("\nNon ci sono stati fallimenti nelle serie.");
         }
 
         resultTextArea.setText(resultText.toString());
     }
-
-
-
 
     private List<Bet> parseBetsFromTextArea() {
         List<Bet> runtimeBets = new ArrayList<>();
