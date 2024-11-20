@@ -57,9 +57,10 @@ public class RouletteGameFrame extends JFrame {
         retryComboBox = new JComboBox<>(new Integer[]{0, 1, 2, 3});
         retryComboBox.setSelectedIndex(0);
         retryComboBox.setFont(new Font("Arial", Font.PLAIN, 16));
-        JPanel retryPanel = new JPanel(new BorderLayout());
-        retryPanel.add(new JLabel("Ritenta in caso di sconfitta"), BorderLayout.NORTH);
-        retryPanel.add(retryComboBox, BorderLayout.CENTER);
+        JPanel retryPanel = new JPanel();
+        retryPanel.setLayout(new BoxLayout(retryPanel, BoxLayout.Y_AXIS));
+        retryPanel.add(new JLabel("Ritenta in caso di sconfitta"));
+        retryPanel.add(retryComboBox);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, seriesScrollPane, resultScrollPane);
         splitPane.setResizeWeight(0.5);
@@ -67,8 +68,11 @@ public class RouletteGameFrame extends JFrame {
 
         setLayout(new BorderLayout());
         add(splitPane, BorderLayout.CENTER);
-        add(retryPanel, BorderLayout.WEST);
-        add(startButton, BorderLayout.SOUTH);
+
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.add(retryPanel, BorderLayout.WEST);
+        bottomPanel.add(startButton, BorderLayout.EAST);
+        add(bottomPanel, BorderLayout.SOUTH);
 
         displaySeries();
     }
