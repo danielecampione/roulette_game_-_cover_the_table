@@ -138,32 +138,44 @@ public class RouletteGame {
         bets.add(new Bet(29, 7));
         bets.add(new Bet(28, 12));
         bets.add(new Bet(-1, -1)); // Ignora
+        
+        List<StringBuilder> results = new ArrayList<>();
+        for (int i = 0; i < bets.size(); i++) {
+            results.add(new StringBuilder());
+        }
 
-        boolean stopGame;
-        for (int round = 0; round < 10; round++) { // Play 10 rounds
-            stopGame = false;
-            StringBuilder results = new StringBuilder();
-
-            for (Bet bet : bets) {
+        for (int round = 0; round < 100; round++) {
+            boolean stopGame = false;
+            for (int i = 0; i < bets.size(); i++) {
+                Bet bet = bets.get(i);
                 if (bet.shouldIgnore()) {
-                    results.append((stopGame ? "X " : ". ") + bet).append("\n");
+                    results.get(i).insert(0, stopGame ? "X" : ".");
                     continue;
                 }
 
                 if (stopGame) {
-                    results.append("X ").append(bet).append("\n");
+                    results.get(i).insert(0, "X");
                     continue;
                 }
 
                 int result = roulette.spin();
                 if (bet.isWinningNumber(result)) {
-                    results.append("X ").append(bet).append(" (").append(result).append(")").append("\n");
+                    results.get(i).insert(0, "X");
                     stopGame = true;
                 } else {
-                    results.append(". ").append(bet).append(" (").append(result).append(")").append("\n");
+                    results.get(i).insert(0, ".");
                 }
             }
-            System.out.println(results.toString());
+        }
+
+        // Aggiungi la scommessa originale alla fine di ogni risultato
+        for (int i = 0; i < bets.size(); i++) {
+            results.get(i).append(" ").append(bets.get(i));
+        }
+
+        // Stampa i risultati finali dopo tutti i round
+        for (StringBuilder result : results) {
+            System.out.println(result.toString());
         }
     }
 }
