@@ -21,17 +21,6 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-/**
- * Il metodo analizzato in questa applicazione è noto come "Cover the Table" o
- * "Cover All Bases". Questo sistema prevede di coprire quasi tutti i numeri sul
- * tavolo della roulette, lasciando scoperti solo pochissimi numeri, come ad
- * esempio due. L'obiettivo è massimizzare le probabilità di vincita su ogni
- * giro della ruota, anche se il profitto per ogni vincita è generalmente basso
- * rispetto alla puntata totale.
- * 
- * @author D. Campione
- *
- */
 public class RouletteGameFrame extends JFrame {
 
     private static final long serialVersionUID = 5786059233469279478L;
@@ -41,6 +30,7 @@ public class RouletteGameFrame extends JFrame {
     private JButton startButton;
     private JComboBox<Integer> retryComboBox;
     private JComboBox<Integer> seriesComboBox;
+    private JComboBox<String> betAmountComboBox;
     private List<Bet> bets;
     private Path seriesFilePath;
 
@@ -62,7 +52,7 @@ public class RouletteGameFrame extends JFrame {
     }
 
     private void initializeUI() {
-        setTitle("Roulette Game - Cover the Table, Cover All Bases ");
+        setTitle("Roulette Game - Cover the Table, Cover All Bases");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -97,6 +87,14 @@ public class RouletteGameFrame extends JFrame {
         retryPanel.add(new JLabel("Giocate"));
         retryPanel.add(seriesComboBox);
 
+        betAmountComboBox = new JComboBox<>(
+                new String[] { "35 € (1 € per numero)", "70 € (2 € per numero)", "105 € (3 € per numero)",
+                        "3.500 € (100 € per numero)", "5.250 € (150 € per numero)", "7.000 € (200 € per numero)" });
+        betAmountComboBox.setSelectedIndex(0);
+        betAmountComboBox.setFont(new Font("Arial", Font.PLAIN, 16));
+        retryPanel.add(new JLabel("Puntate sul tavolo"));
+        retryPanel.add(betAmountComboBox);
+
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, seriesScrollPane, resultScrollPane);
         splitPane.setResizeWeight(0.5);
         splitPane.setDividerLocation(300);
@@ -128,6 +126,8 @@ public class RouletteGameFrame extends JFrame {
 
         int retryCount = (int) retryComboBox.getSelectedItem();
         int seriesCount = (int) seriesComboBox.getSelectedItem();
+        int betAmount = getBetAmount(); // Ottieni l'importo della puntata selezionato
+        int betUnit = betAmount / 35; // Calcola l'importo per numero puntato
         Roulette roulette = new Roulette();
         List<StringBuilder> results = new ArrayList<>();
         for (int i = 0; i < runtimeBets.size(); i++) {
@@ -174,12 +174,12 @@ public class RouletteGameFrame extends JFrame {
                 if (bet.isWinningNumber(result)) {
                     results.get(i).append("X");
                     stopGame = true;
+                    columnProfitLoss -= betUnit * 35; // Moltiplica per l'importo per numero
                     if (firstFailureRow == -1
                             || (i < firstFailureRow || (i == firstFailureRow && series < firstFailureSeries))) {
                         firstFailureRow = i;
                         firstFailureSeries = series;
                     }
-                    columnProfitLoss -= 35;
                     if (retryCount == 0) {
                         for (int j = i + 1; j < runtimeBets.size(); j++) {
                             results.get(j).append("X");
@@ -189,7 +189,7 @@ public class RouletteGameFrame extends JFrame {
                 } else {
                     results.get(i).append(".");
                     totalDots++;
-                    columnProfitLoss += 1;
+                    columnProfitLoss += betUnit; // Incrementa con l'importo per numero
                 }
             }
 
@@ -203,7 +203,7 @@ public class RouletteGameFrame extends JFrame {
             resultText.append(results.get(i).toString()).append(" ").append(runtimeBets.get(i)).append("\n");
         }
 
-        double averageDots = totalBets > 0 ? (double) totalDots / totalBets : 0;
+        double averageDots = seriesCount > 0 ? (double) totalDots / seriesCount : 0;
         resultText.append("\nMedia dei punti (ovvero delle vittorie): ").append(averageDots);
 
         if (firstFailureRow != -1) {
@@ -221,6 +221,25 @@ public class RouletteGameFrame extends JFrame {
         resultText.append("\nSomma complessiva: ").append(totalProfitLoss).append("€");
 
         resultTextArea.setText(resultText.toString());
+    }
+
+    private int getBetAmount() {
+        String selectedBet = (String) betAmountComboBox.getSelectedItem();
+        switch (selectedBet) {
+        case "70 € (2 € per numero)":
+            return 70;
+        case "105 € (3 € per numero)":
+            return 105;
+        case "3.500 € (100 € per numero)":
+            return 3500;
+        case "5.250 € (150 € per numero)":
+            return 5250;
+        case "7.000 € (200 € per numero)":
+            return 7000;
+        case "35 € (1 € per numero)":
+        default:
+            return 35;
+        }
     }
 
     private List<Bet> parseBetsFromTextArea() {
