@@ -138,10 +138,14 @@ public class RouletteGameFrame extends JFrame {
         int totalBets = 0;
         int firstFailureRow = -1;
         int firstFailureSeries = -1;
+        int totalProfitLoss = 0;
+
+        List<Integer> columnProfits = new ArrayList<>();
 
         for (int series = 0; series < seriesCount; series++) {
             boolean stopGame = false;
             int attempts = 0;
+            int columnProfitLoss = 0;
 
             for (int i = 0; i < runtimeBets.size(); i++) {
                 Bet bet = runtimeBets.get(i);
@@ -157,11 +161,6 @@ public class RouletteGameFrame extends JFrame {
                         }
                     } else {
                         results.get(i).append("X");
-                        if (firstFailureRow == -1
-                                || (i < firstFailureRow || (i == firstFailureRow && series < firstFailureSeries))) {
-                            firstFailureRow = i;
-                            firstFailureSeries = series;
-                        }
                         continue;
                     }
                 }
@@ -175,27 +174,28 @@ public class RouletteGameFrame extends JFrame {
                 if (bet.isWinningNumber(result)) {
                     results.get(i).append("X");
                     stopGame = true;
-
                     if (firstFailureRow == -1
                             || (i < firstFailureRow || (i == firstFailureRow && series < firstFailureSeries))) {
                         firstFailureRow = i;
                         firstFailureSeries = series;
                     }
-
+                    columnProfitLoss -= 35;
+                    if (retryCount == 0) {
+                        for (int j = i + 1; j < runtimeBets.size(); j++) {
+                            results.get(j).append("X");
+                        }
+                        break;
+                    }
                 } else {
                     results.get(i).append(".");
+                    totalDots++;
+                    columnProfitLoss += 1;
                 }
             }
 
-            for (int i = 0; i < runtimeBets.size(); i++) {
-                if (results.get(i).charAt(series) == '.') {
-                    totalDots++;
-                    totalBets++;
-                }
-                if (results.get(i).charAt(series) != '=') {
-                    totalBets++;
-                }
-            }
+            columnProfits.add(columnProfitLoss);
+            totalProfitLoss += columnProfitLoss;
+            totalBets++;
         }
 
         StringBuilder resultText = new StringBuilder();
@@ -203,7 +203,7 @@ public class RouletteGameFrame extends JFrame {
             resultText.append(results.get(i).toString()).append(" ").append(runtimeBets.get(i)).append("\n");
         }
 
-        double averageDots = totalBets > 0 ? (double) totalDots / seriesCount : 0;
+        double averageDots = totalBets > 0 ? (double) totalDots / totalBets : 0;
         resultText.append("\nMedia dei punti (ovvero delle vittorie): ").append(averageDots);
 
         if (firstFailureRow != -1) {
@@ -212,6 +212,13 @@ public class RouletteGameFrame extends JFrame {
         } else {
             resultText.append("\nNon ci sono stati fallimenti nelle serie.");
         }
+
+        resultText.append("\n\n**Guadagno/Perdita per ciascuna serie**\n");
+        for (int i = 0; i < columnProfits.size(); i++) {
+            resultText.append("Serie ").append((seriesCount - 1) - i + 1).append(": ").append(columnProfits.get(i))
+                    .append("€\n");
+        }
+        resultText.append("\nSomma complessiva: ").append(totalProfitLoss).append("€");
 
         resultTextArea.setText(resultText.toString());
     }
