@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.RotateTransition;
+import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -49,7 +51,7 @@ public class RouletteGameApp extends Application {
         resultTextArea = new TextArea();
         resultTextArea.setPromptText("Esito dell'estrazione");
         resultTextArea.getStyleClass().add("text-area");
-        resultTextArea.setWrapText(true);
+        resultTextArea.setWrapText(false);
         resultTextArea.setEditable(false);
 
         applyTransitions(seriesTextArea);
@@ -104,15 +106,41 @@ public class RouletteGameApp extends Application {
         translateTransition.setFromX(-50);
         translateTransition.setToX(0);
 
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(1000), textArea);
+        scaleTransition.setFromX(0.8);
+        scaleTransition.setFromY(0.8);
+        scaleTransition.setToX(1.0);
+        scaleTransition.setToY(1.0);
+
         fadeTransition.play();
         translateTransition.play();
+        scaleTransition.play();
     }
 
     private void applyButtonEffects(Button button) {
-        button.setOnMouseEntered(e -> button.setStyle(
-                "-fx-background-color: #45a049; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 10, 0, 0, 5); -fx-cursor: hand;"));
-        button.setOnMouseExited(e -> button.setStyle(
-                "-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 10 20; -fx-font-size: 14px;"));
+        button.setOnMouseEntered(e -> {
+            button.setStyle(
+                    "-fx-background-color: #45a049; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 10, 0, 0, 5); -fx-cursor: hand;");
+            ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), button);
+            scaleTransition.setToX(1.1);
+            scaleTransition.setToY(1.1);
+            scaleTransition.play();
+        });
+        button.setOnMouseExited(e -> {
+            button.setStyle(
+                    "-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 10 20; -fx-font-size: 14px;");
+            ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), button);
+            scaleTransition.setToX(1.0);
+            scaleTransition.setToY(1.0);
+            scaleTransition.play();
+        });
+        button.setOnMousePressed(e -> {
+            RotateTransition rotateTransition = new RotateTransition(Duration.millis(100), button);
+            rotateTransition.setByAngle(5);
+            rotateTransition.setCycleCount(2);
+            rotateTransition.setAutoReverse(true);
+            rotateTransition.play();
+        });
     }
 
     private void startExtraction() {
