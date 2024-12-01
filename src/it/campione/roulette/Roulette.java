@@ -1,3 +1,5 @@
+package it.campione.roulette;
+
 import java.util.Random;
 
 /**

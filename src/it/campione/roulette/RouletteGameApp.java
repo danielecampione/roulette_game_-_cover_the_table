@@ -1,5 +1,5 @@
-import java.awt.BorderLayout;
-import java.awt.Font;
+package it.campione.roulette;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,114 +8,91 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
-public class RouletteGameFrame extends JFrame {
-
-    private static final long serialVersionUID = 5786059233469279478L;
-
-    private JTextArea seriesTextArea;
-    private JTextArea resultTextArea;
-    private JButton startButton;
-    private JComboBox<Integer> retryComboBox;
-    private JComboBox<Integer> seriesComboBox;
-    private JComboBox<String> betAmountComboBox;
+/**
+ * Il metodo analizzato in questa applicazione è noto come "Cover the Table" o
+ * "Cover All Bases". Questo sistema prevede di coprire quasi tutti i numeri sul
+ * tavolo della roulette, lasciando scoperti solo pochissimi numeri, come ad
+ * esempio due. L'obiettivo è massimizzare le probabilità di vincita su ogni
+ * giro della ruota, anche se il profitto per ogni vincita è generalmente basso
+ * rispetto alla puntata totale.
+ * 
+ * @author D. Campione
+ *
+ */
+public class RouletteGameApp extends Application {
+    private TextArea seriesTextArea;
+    private TextArea resultTextArea;
+    private ComboBox<Integer> retryComboBox;
+    private ComboBox<Integer> seriesComboBox;
+    private ComboBox<String> betAmountComboBox;
     private List<Bet> bets;
     private Path seriesFilePath;
 
-    public RouletteGameFrame(Path seriesFilePath) {
-        this.seriesFilePath = seriesFilePath;
-        this.bets = loadBetsFromFile();
-        setLookAndFeel();
-        initializeUI();
-    }
+    @Override
+    public void start(Stage primaryStage) {
+        seriesFilePath = Paths.get("serie.txt");
+        bets = loadBetsFromFile();
+        primaryStage.setTitle("Roulette Game - Cover the Table, Cover All Bases");
 
-    private void setLookAndFeel() {
-        try {
-            if (System.getProperty("os.name").toLowerCase().contains("win")) {
-                UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+        seriesTextArea = new TextArea();
+        seriesTextArea.setPromptText("Coppie escluse");
+        seriesTextArea.setText(loadSeriesFromFile());
+        seriesTextArea.setFont(javafx.scene.text.Font.font("Courier New", 12));
+        seriesTextArea.setWrapText(true);
 
-    private void initializeUI() {
-        setTitle("Roulette Game - Cover the Table, Cover All Bases");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-
-        seriesTextArea = new JTextArea();
-        seriesTextArea.setEditable(true);
-        seriesTextArea.setFont(new Font("Courier New", Font.PLAIN, 16));
-        JScrollPane seriesScrollPane = new JScrollPane(seriesTextArea);
-        seriesScrollPane.setBorder(BorderFactory.createTitledBorder("Coppie escluse"));
-
-        resultTextArea = new JTextArea();
+        resultTextArea = new TextArea();
+        resultTextArea.setPromptText("Esito dell'estrazione");
+        resultTextArea.setFont(javafx.scene.text.Font.font("Courier New", 12));
+        resultTextArea.setWrapText(true);
         resultTextArea.setEditable(false);
-        resultTextArea.setFont(new Font("Courier New", Font.PLAIN, 16));
-        JScrollPane resultScrollPane = new JScrollPane(resultTextArea);
-        resultScrollPane.setBorder(BorderFactory.createTitledBorder("Esito dell'estrazione"));
 
-        startButton = new JButton("Avvia estrazione");
-        startButton.setFont(new Font("Arial", Font.PLAIN, 16));
-        startButton.addActionListener(e -> startExtraction());
+        retryComboBox = new ComboBox<>(FXCollections.observableArrayList(0, 1, 2, 3));
+        retryComboBox.getSelectionModel().selectFirst();
 
-        retryComboBox = new JComboBox<>(new Integer[] { 0, 1, 2, 3 });
-        retryComboBox.setSelectedIndex(0);
-        retryComboBox.setFont(new Font("Arial", Font.PLAIN, 16));
-        JPanel retryPanel = new JPanel();
-        retryPanel.setLayout(new BoxLayout(retryPanel, BoxLayout.Y_AXIS));
-        retryPanel.add(new JLabel("Ritenta in caso di sconfitta"));
-        retryPanel.add(retryComboBox);
+        seriesComboBox = new ComboBox<>(FXCollections.observableArrayList(1, 2, 5, 10, 50, 100));
+        seriesComboBox.getSelectionModel().selectFirst();
 
-        seriesComboBox = new JComboBox<>(new Integer[] { 1, 2, 5, 10, 50, 100 });
-        seriesComboBox.setSelectedIndex(0);
-        seriesComboBox.setFont(new Font("Arial", Font.PLAIN, 16));
-        retryPanel.add(new JLabel("Giocate"));
-        retryPanel.add(seriesComboBox);
+        betAmountComboBox = new ComboBox<>(FXCollections.observableArrayList("35 € (1 € per numero)",
+                "70 € (2 € per numero)", "105 € (3 € per numero)", "3.500 € (100 € per numero)",
+                "5.250 € (150 € per numero)", "7.000 € (200 € per numero)"));
+        betAmountComboBox.getSelectionModel().selectFirst();
 
-        betAmountComboBox = new JComboBox<>(
-                new String[] { "35 € (1 € per numero)", "70 € (2 € per numero)", "105 € (3 € per numero)",
-                        "3.500 € (100 € per numero)", "5.250 € (150 € per numero)", "7.000 € (200 € per numero)" });
-        betAmountComboBox.setSelectedIndex(0);
-        betAmountComboBox.setFont(new Font("Arial", Font.PLAIN, 16));
-        retryPanel.add(new JLabel("Puntate sul tavolo"));
-        retryPanel.add(betAmountComboBox);
+        Button startButton = new Button("Avvia estrazione");
+        startButton.setOnAction(e -> startExtraction());
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, seriesScrollPane, resultScrollPane);
-        splitPane.setResizeWeight(0.5);
-        splitPane.setDividerLocation(300);
+        VBox controlsBox = new VBox(10, new Label("Ritenta in caso di sconfitta"), retryComboBox, new Label("Giocate"),
+                seriesComboBox, new Label("Puntate sul tavolo"), betAmountComboBox, startButton);
+        controlsBox.setPadding(new Insets(10));
 
-        setLayout(new BorderLayout());
-        add(splitPane, BorderLayout.CENTER);
+        VBox.setVgrow(seriesTextArea, Priority.ALWAYS);
+        VBox.setVgrow(resultTextArea, Priority.ALWAYS);
 
-        JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.add(retryPanel, BorderLayout.WEST);
-        bottomPanel.add(startButton, BorderLayout.EAST);
-        add(bottomPanel, BorderLayout.SOUTH);
+        VBox leftBox = new VBox(10, new Label("Coppie escluse"), seriesTextArea);
+        VBox rightBox = new VBox(10, new Label("Esito dell'estrazione"), resultTextArea);
+        SplitPane splitPane = new SplitPane(leftBox, rightBox);
+        splitPane.setDividerPositions(0.5);
 
-        displaySeries();
-    }
+        BorderPane root = new BorderPane();
+        root.setCenter(splitPane);
+        root.setRight(controlsBox);
 
-    private void displaySeries() {
-        StringBuilder seriesBuilder = new StringBuilder();
-        for (Bet bet : bets) {
-            seriesBuilder.append(bet.toString()).append("\n");
-        }
-        seriesTextArea.setText(seriesBuilder.toString());
+        Scene scene = new Scene(root, 800, 600);
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
     private void startExtraction() {
@@ -124,8 +101,8 @@ public class RouletteGameFrame extends JFrame {
             saveBetsToFile(runtimeBets);
         }
 
-        int retryCount = (int) retryComboBox.getSelectedItem();
-        int seriesCount = (int) seriesComboBox.getSelectedItem();
+        int retryCount = retryComboBox.getValue();
+        int seriesCount = seriesComboBox.getValue();
         int betAmount = getBetAmount(); // Ottieni l'importo della puntata selezionato
         int betUnit = betAmount / 35; // Calcola l'importo per numero puntato
         Roulette roulette = new Roulette();
@@ -224,7 +201,7 @@ public class RouletteGameFrame extends JFrame {
     }
 
     private int getBetAmount() {
-        String selectedBet = (String) betAmountComboBox.getSelectedItem();
+        String selectedBet = betAmountComboBox.getValue();
         switch (selectedBet) {
         case "70 € (2 € per numero)":
             return 70;
@@ -301,12 +278,20 @@ public class RouletteGameFrame extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
-        Path seriesFilePath = Paths.get("serie.txt");
+    private String loadSeriesFromFile() {
+        StringBuilder contentBuilder = new StringBuilder();
+        try {
+            List<String> lines = Files.readAllLines(seriesFilePath);
+            for (String line : lines) {
+                contentBuilder.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return contentBuilder.toString();
+    }
 
-        SwingUtilities.invokeLater(() -> {
-            RouletteGameFrame frame = new RouletteGameFrame(seriesFilePath);
-            frame.setVisible(true);
-        });
+    public static void main(String[] args) {
+        launch(args);
     }
 }
