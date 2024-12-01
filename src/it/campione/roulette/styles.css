@@ -1,0 +1,29 @@
+.root {
+    -fx-font-family: "Courier New";
+    -fx-background-color: #f4f4f4;
+}
+
+.text-area {
+    -fx-border-color: #cccccc;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-padding: 10 20;
+    -fx-font-size: 14px;
+}
+
+.button:hover {
+    -fx-background-color: #45a049;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 10, 0, 0, 5);
+}
+
+.label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}

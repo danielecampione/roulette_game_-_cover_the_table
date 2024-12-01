@@ -8,6 +8,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -21,18 +23,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
-/**
- * Il metodo analizzato in questa applicazione è noto come "Cover the Table" o
- * "Cover All Bases". Questo sistema prevede di coprire quasi tutti i numeri sul
- * tavolo della roulette, lasciando scoperti solo pochissimi numeri, come ad
- * esempio due. L'obiettivo è massimizzare le probabilità di vincita su ogni
- * giro della ruota, anche se il profitto per ogni vincita è generalmente basso
- * rispetto alla puntata totale.
- * 
- * @author D. Campione
- *
- */
 public class RouletteGameApp extends Application {
     private TextArea seriesTextArea;
     private TextArea resultTextArea;
@@ -51,14 +43,17 @@ public class RouletteGameApp extends Application {
         seriesTextArea = new TextArea();
         seriesTextArea.setPromptText("Coppie escluse");
         seriesTextArea.setText(loadSeriesFromFile());
-        seriesTextArea.setFont(javafx.scene.text.Font.font("Courier New", 12));
+        seriesTextArea.getStyleClass().add("text-area");
         seriesTextArea.setWrapText(true);
 
         resultTextArea = new TextArea();
         resultTextArea.setPromptText("Esito dell'estrazione");
-        resultTextArea.setFont(javafx.scene.text.Font.font("Courier New", 12));
+        resultTextArea.getStyleClass().add("text-area");
         resultTextArea.setWrapText(true);
         resultTextArea.setEditable(false);
+
+        applyTransitions(seriesTextArea);
+        applyTransitions(resultTextArea);
 
         retryComboBox = new ComboBox<>(FXCollections.observableArrayList(0, 1, 2, 3));
         retryComboBox.getSelectionModel().selectFirst();
@@ -72,7 +67,9 @@ public class RouletteGameApp extends Application {
         betAmountComboBox.getSelectionModel().selectFirst();
 
         Button startButton = new Button("Avvia estrazione");
+        startButton.getStyleClass().add("button");
         startButton.setOnAction(e -> startExtraction());
+        applyButtonEffects(startButton);
 
         VBox controlsBox = new VBox(10, new Label("Ritenta in caso di sconfitta"), retryComboBox, new Label("Giocate"),
                 seriesComboBox, new Label("Puntate sul tavolo"), betAmountComboBox, startButton);
@@ -82,7 +79,9 @@ public class RouletteGameApp extends Application {
         VBox.setVgrow(resultTextArea, Priority.ALWAYS);
 
         VBox leftBox = new VBox(10, new Label("Coppie escluse"), seriesTextArea);
+        leftBox.getChildren().get(0).getStyleClass().add("label");
         VBox rightBox = new VBox(10, new Label("Esito dell'estrazione"), resultTextArea);
+        rightBox.getChildren().get(0).getStyleClass().add("label");
         SplitPane splitPane = new SplitPane(leftBox, rightBox);
         splitPane.setDividerPositions(0.5);
 
@@ -91,8 +90,29 @@ public class RouletteGameApp extends Application {
         root.setRight(controlsBox);
 
         Scene scene = new Scene(root, 800, 600);
+        scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    private void applyTransitions(TextArea textArea) {
+        FadeTransition fadeTransition = new FadeTransition(Duration.millis(1000), textArea);
+        fadeTransition.setFromValue(0.0);
+        fadeTransition.setToValue(1.0);
+
+        TranslateTransition translateTransition = new TranslateTransition(Duration.millis(1000), textArea);
+        translateTransition.setFromX(-50);
+        translateTransition.setToX(0);
+
+        fadeTransition.play();
+        translateTransition.play();
+    }
+
+    private void applyButtonEffects(Button button) {
+        button.setOnMouseEntered(e -> button.setStyle(
+                "-fx-background-color: #45a049; -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 10, 0, 0, 5); -fx-cursor: hand;"));
+        button.setOnMouseExited(e -> button.setStyle(
+                "-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 5px; -fx-padding: 10 20; -fx-font-size: 14px;"));
     }
 
     private void startExtraction() {
