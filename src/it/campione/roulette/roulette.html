@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roulette Europea</title>
+    <link rel="stylesheet" href="styles2.css">
+</head>
+<body>
+    <div class="roulette-container">
+        <div class="roulette-wheel">
+            <div class="ball" id="ball"></div>
+            <div class="numbers">
+                <!-- Numeri della roulette -->
+                <div class="number green" data-number="0">0</div>
+                <div class="number red" data-number="32">32</div>
+                <div class="number black" data-number="15">15</div>
+                <div class="number red" data-number="19">19</div>
+                <div class="number black" data-number="4">4</div>
+                <div class="number red" data-number="21">21</div>
+                <div class="number black" data-number="2">2</div>
+                <div class="number red" data-number="25">25</div>
+                <div class="number black" data-number="17">17</div>
+                <div class="number red" data-number="34">34</div>
+                <div class="number black" data-number="6">6</div>
+                <div class="number red" data-number="27">27</div>
+                <div class="number black" data-number="13">13</div>
+                <div class="number red" data-number="36">36</div>
+                <div class="number black" data-number="11">11</div>
+                <div class="number red" data-number="30">30</div>
+                <div class="number black" data-number="8">8</div>
+                <div class="number red" data-number="23">23</div>
+                <div class="number black" data-number="10">10</div>
+                <div class="number red" data-number="5">5</div>
+                <div class="number black" data-number="24">24</div>
+                <div class="number red" data-number="16">16</div>
+                <div class="number black" data-number="33">33</div>
+                <div class="number red" data-number="1">1</div>
+                <div class="number black" data-number="20">20</div>
+                <div class="number red" data-number="14">14</div>
+                <div class="number black" data-number="31">31</div>
+                <div class="number red" data-number="9">9</div>
+                <div class="number black" data-number="22">22</div>
+                <div class="number red" data-number="18">18</div>
+                <div class="number black" data-number="29">29</div>
+                <div class="number red" data-number="7">7</div>
+                <div class="number black" data-number="28">28</div>
+                <div class="number red" data-number="12">12</div>
+                <div class="number black" data-number="35">35</div>
+                <div class="number red" data-number="3">3</div>
+                <div class="number black" data-number="26">26</div>
+            </div>
+        </div>
+        <button id="spinButton">Gira la Ruota</button>
+        <div id="result"></div>
+    </div>
+    <div class="toggle-container">
+        <label class="switch">
+            <input type="checkbox" id="animationToggle" checked>
+            <span class="slider round"></span>
+        </label>
+        <span id="toggleLabel">Animazioni</span>
+    </div>
+    <div class="history-bar"></div>
+    <script src="script.js"></script>
+</body>
+</html>

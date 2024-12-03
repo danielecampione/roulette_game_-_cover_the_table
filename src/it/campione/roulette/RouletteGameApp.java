@@ -25,6 +25,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.WebView;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -86,8 +88,14 @@ public class RouletteGameApp extends Application {
         startButton.setOnAction(e -> startExtraction());
         applyButtonEffects(startButton);
 
+        // Aggiungi il pulsante per aprire la finestra di gioco della roulette
+        Button openRouletteButton = new Button("Gioca alla Roulette");
+        openRouletteButton.getStyleClass().add("button");
+        openRouletteButton.setOnAction(e -> openRouletteWindow());
+        applyButtonEffects(openRouletteButton);
+
         VBox controlsBox = new VBox(10, new Label("Ritenta in caso di sconfitta"), retryComboBox, new Label("Giocate"),
-                seriesComboBox, new Label("Puntate sul tavolo"), betAmountComboBox, startButton);
+                seriesComboBox, new Label("Puntate sul tavolo"), betAmountComboBox, startButton, openRouletteButton);
         controlsBox.setPadding(new Insets(10));
 
         VBox.setVgrow(seriesTextArea, Priority.ALWAYS);
@@ -378,6 +386,22 @@ public class RouletteGameApp extends Application {
         // Avvia le transizioni
         fadeTransition.play();
         translateTransition.play();
+    }
+
+    private void openRouletteWindow() {
+        // Crea una nuova finestra
+        Stage rouletteStage = new Stage();
+        rouletteStage.initModality(Modality.APPLICATION_MODAL);
+        rouletteStage.setTitle("Gioca alla Roulette");
+
+        // Crea un WebView e carica il file HTML
+        WebView webView = new WebView();
+        webView.getEngine().load(getClass().getResource("roulette.html").toExternalForm());
+
+        // Aggiungi il WebView alla scena e configura la finestra
+        Scene scene = new Scene(webView, 800, 800);
+        rouletteStage.setScene(scene);
+        rouletteStage.show();
     }
 
     public static void main(String[] args) {
