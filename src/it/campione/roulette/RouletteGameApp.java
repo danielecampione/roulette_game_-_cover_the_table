@@ -13,6 +13,7 @@ import javafx.animation.RotateTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -27,7 +28,19 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+/**
+ * Il metodo analizzato in questa applicazione è noto come "Cover the Table" o
+ * "Cover All Bases". Questo sistema prevede di coprire quasi tutti i numeri sul
+ * tavolo della roulette, lasciando scoperti solo pochissimi numeri, come ad
+ * esempio due. L'obiettivo è massimizzare le probabilità di vincita su ogni
+ * giro della ruota, anche se il profitto per ogni vincita è generalmente basso
+ * rispetto alla puntata totale.
+ * 
+ * @author D. Campione
+ *
+ */
 public class RouletteGameApp extends Application {
+
     private TextArea seriesTextArea;
     private TextArea resultTextArea;
     private ComboBox<Integer> retryComboBox;
@@ -94,6 +107,11 @@ public class RouletteGameApp extends Application {
         Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
         primaryStage.setScene(scene);
+
+        primaryStage.setOnCloseRequest(event -> {
+            event.consume(); // Consuma l'evento di chiusura per gestirlo manualmente
+            closeApp(primaryStage);
+        });
         primaryStage.show();
     }
 
@@ -160,7 +178,6 @@ public class RouletteGameApp extends Application {
         }
 
         int totalDots = 0;
-        int totalBets = 0;
         int firstFailureRow = -1;
         int firstFailureSeries = -1;
         int totalProfitLoss = 0;
@@ -220,7 +237,6 @@ public class RouletteGameApp extends Application {
 
             columnProfits.add(columnProfitLoss);
             totalProfitLoss += columnProfitLoss;
-            totalBets++;
         }
 
         StringBuilder resultText = new StringBuilder();
@@ -337,6 +353,31 @@ public class RouletteGameApp extends Application {
             e.printStackTrace();
         }
         return contentBuilder.toString();
+    }
+
+    private void closeApp(Stage primaryStage) {
+        // Creiamo una transizione di dissolvenza
+        FadeTransition fadeTransition = new FadeTransition(Duration.millis(1000), primaryStage.getScene().getRoot());
+        fadeTransition.setFromValue(1.0);
+        fadeTransition.setToValue(0.0);
+
+        // Creiamo una transizione di spostamento laterale
+        TranslateTransition translateTransition = new TranslateTransition(Duration.millis(1000),
+                primaryStage.getScene().getRoot());
+        translateTransition.setFromX(0);
+        translateTransition.setToX(-primaryStage.getWidth());
+
+        // Quando la transizione è completata, chiudiamo l'app
+        fadeTransition.setOnFinished(event -> {
+            Platform.runLater(() -> {
+                primaryStage.close();
+                System.gc(); // Richiama il Garbage Collector per pulire la memoria
+            });
+        });
+
+        // Avvia le transizioni
+        fadeTransition.play();
+        translateTransition.play();
     }
 
     public static void main(String[] args) {
