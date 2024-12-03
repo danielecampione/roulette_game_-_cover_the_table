@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
 import javafx.animation.RotateTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
@@ -36,7 +37,9 @@ import javafx.util.Duration;
  * tavolo della roulette, lasciando scoperti solo pochissimi numeri, come ad
  * esempio due. L'obiettivo è massimizzare le probabilità di vincita su ogni
  * giro della ruota, anche se il profitto per ogni vincita è generalmente basso
- * rispetto alla puntata totale.
+ * rispetto alla puntata totale. L'applicazione dimostra che il banco vince
+ * sempre e che lo fa anche molto presto. Persino il metodo "Cover the table" è
+ * pertanto molto rischioso per il giocatore.
  * 
  * @author D. Campione
  *
@@ -388,6 +391,7 @@ public class RouletteGameApp extends Application {
         translateTransition.play();
     }
 
+    // Modifica il metodo openRouletteWindow per includere l'apertura con effetti
     private void openRouletteWindow() {
         // Crea una nuova finestra
         Stage rouletteStage = new Stage();
@@ -401,10 +405,48 @@ public class RouletteGameApp extends Application {
         // Aggiungi il WebView alla scena e configura la finestra
         Scene scene = new Scene(webView, 800, 800);
         rouletteStage.setScene(scene);
+
+        // Mostra la finestra immediatamente
         rouletteStage.show();
+
+        // Aggiungi il comportamento di chiusura con effetti
+        rouletteStage.setOnCloseRequest(event -> {
+            event.consume(); // Consuma l'evento di chiusura per gestirlo manualmente
+            closeRouletteWindow(rouletteStage);
+        });
     }
 
-    public static void main(String[] args) {
+    private void closeRouletteWindow(Stage rouletteStage) {
+        // Creiamo una transizione di rotazione
+        RotateTransition rotateTransition = new RotateTransition(Duration.millis(1000),
+                rouletteStage.getScene().getRoot());
+        rotateTransition.setFromAngle(0);
+        rotateTransition.setToAngle(360);
+
+        // Creiamo una transizione di scala
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(1000),
+                rouletteStage.getScene().getRoot());
+        scaleTransition.setFromX(1.0);
+        scaleTransition.setFromY(1.0);
+        scaleTransition.setToX(0.5);
+        scaleTransition.setToY(0.5);
+
+        // Creiamo una transizione di dissolvenza
+        FadeTransition fadeTransition = new FadeTransition(Duration.millis(1000), rouletteStage.getScene().getRoot());
+        fadeTransition.setFromValue(1.0);
+        fadeTransition.setToValue(0.0);
+
+        // Eseguiamo le transizioni in parallelo
+        ParallelTransition parallelTransition = new ParallelTransition(rotateTransition, scaleTransition,
+                fadeTransition);
+        parallelTransition.setOnFinished(event -> {
+            rouletteStage.close();
+        });
+
+        parallelTransition.play();
+    }
+
+    public static void main(String... args) {
         launch(args);
     }
 }
