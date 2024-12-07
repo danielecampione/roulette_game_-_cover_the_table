@@ -51,6 +51,7 @@ public class RouletteGameApp extends Application {
     private ComboBox<Integer> retryComboBox;
     private ComboBox<Integer> seriesComboBox;
     private ComboBox<String> betAmountComboBox;
+    private ComboBox<Integer> attemptLimitComboBox;
     private List<Bet> bets;
     private Path seriesFilePath;
 
@@ -97,9 +98,26 @@ public class RouletteGameApp extends Application {
         openRouletteButton.setOnAction(e -> openRouletteWindow());
         applyButtonEffects(openRouletteButton);
 
-        VBox controlsBox = new VBox(10, new Label("Ritenta in caso di sconfitta"), retryComboBox, new Label("Giocate"),
-                seriesComboBox, new Label("Puntate sul tavolo"), betAmountComboBox, startButton, openRouletteButton);
+        attemptLimitComboBox = new ComboBox<>(
+                FXCollections.observableArrayList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50));
+        attemptLimitComboBox.getSelectionModel().selectFirst();
+        attemptLimitComboBox.setDisable(false); // Abilitata inizialmente
+
+        VBox controlsBox = new VBox(10, new Label("Giocate"), seriesComboBox, new Label("Ritenta in caso di sconfitta"),
+                retryComboBox, new Label("Puntate sul tavolo"), betAmountComboBox,
+                new Label("Somma € fino a (0 = no limite)"), attemptLimitComboBox, startButton, openRouletteButton);
         controlsBox.setPadding(new Insets(10));
+
+        // Aggiungi il listener per la ComboBox "Giocate"
+        seriesComboBox.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
+            if (newValue.equals(1)) {
+                attemptLimitComboBox.setDisable(false);
+            } else {
+                attemptLimitComboBox.setDisable(true);
+                attemptLimitComboBox.getSelectionModel().selectFirst(); // Resetta a "Nessun limite imposto" se
+                                                                        // disabilitato
+            }
+        });
 
         VBox.setVgrow(seriesTextArea, Priority.ALWAYS);
         VBox.setVgrow(resultTextArea, Priority.ALWAYS);
@@ -271,6 +289,37 @@ public class RouletteGameApp extends Application {
                     .append("€\n");
         }
         resultText.append("\nSomma complessiva: ").append(totalProfitLoss).append("€");
+
+        // Calcola il guadagno/perdita fino al tentativo impostato
+        int attemptLimit = attemptLimitComboBox.getValue();
+        if (attemptLimit != 0) {
+            int limitedProfitLoss = 0;
+            int attempts = 0;
+
+            for (int i = 0; i < results.size(); i++) {
+                String column = results.get(i).toString();
+                for (char c : column.toCharArray()) {
+                    if (attempts >= attemptLimit) {
+                        break;
+                    }
+                    if (c == '.') {
+                        limitedProfitLoss += betUnit; // Incrementa con l'importo per numero
+                    } else if (c == 'X') {
+                        limitedProfitLoss -= betUnit * 35; // Moltiplica per l'importo per numero
+                    }
+                    attempts++;
+                }
+            }
+
+            // Se la somma limitata è inferiore alla somma complessiva e la somma
+            // complessiva è strettamente negativa, usa la somma complessiva
+            if (limitedProfitLoss < totalProfitLoss && totalProfitLoss < 0) {
+                limitedProfitLoss = totalProfitLoss;
+            }
+
+            resultText.append("\nGuadagno/Perdita fino al tentativo ").append(attemptLimit).append(": ")
+                    .append(limitedProfitLoss).append("€");
+        }
 
         resultTextArea.setText(resultText.toString());
     }
