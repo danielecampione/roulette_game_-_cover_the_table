@@ -54,6 +54,7 @@ public class RouletteGameApp extends Application {
     private ComboBox<Integer> attemptLimitComboBox;
     private List<Bet> bets;
     private Path seriesFilePath;
+    private List<Integer> extractedNumbers;
 
     @Override
     public void start(Stage primaryStage) {
@@ -206,6 +207,7 @@ public class RouletteGameApp extends Application {
             results.add(new StringBuilder());
         }
 
+        extractedNumbers = new ArrayList<>();
         int totalDots = 0;
         int firstFailureRow = -1;
         int firstFailureSeries = -1;
@@ -220,6 +222,10 @@ public class RouletteGameApp extends Application {
 
             for (int i = 0; i < runtimeBets.size(); i++) {
                 Bet bet = runtimeBets.get(i);
+
+                // Estrarre sempre il numero
+                int result = roulette.spin();
+                extractedNumbers.add(result); // Aggiungi il numero estratto alla lista
 
                 if (stopGame) {
                     if (attempts < retryCount) {
@@ -241,7 +247,6 @@ public class RouletteGameApp extends Application {
                     continue;
                 }
 
-                int result = roulette.spin();
                 if (bet.isWinningNumber(result)) {
                     results.get(i).append("X");
                     stopGame = true;
@@ -270,7 +275,14 @@ public class RouletteGameApp extends Application {
 
         StringBuilder resultText = new StringBuilder();
         for (int i = 0; i < runtimeBets.size(); i++) {
-            resultText.append(results.get(i).toString()).append(" ").append(runtimeBets.get(i)).append("\n");
+            resultText.append(results.get(i).toString()).append(" ").append(runtimeBets.get(i));
+            if (seriesCount == 1 && i < extractedNumbers.size()) {
+                int extractedNumber = extractedNumbers.get(i);
+                String characteristics = getNumberCharacteristics(extractedNumber);
+                resultText.append(", numero estratto: ").append(extractedNumber).append(" (").append(characteristics)
+                        .append(")");
+            }
+            resultText.append("\n");
         }
 
         double averageDots = seriesCount > 0 ? (double) totalDots / seriesCount : 0;
@@ -278,15 +290,14 @@ public class RouletteGameApp extends Application {
 
         if (firstFailureRow != -1) {
             resultText.append("\nIl primo fallimento si registra dopo ").append(firstFailureRow + 1)
-                    .append(" tentativi nella serie ").append((seriesCount - 1) - firstFailureSeries + 1).append(".");
+                    .append(" tentativi nella serie ").append(firstFailureSeries + 1).append(".");
         } else {
             resultText.append("\nNon ci sono stati fallimenti nelle serie.");
         }
 
         resultText.append("\n\n**Guadagno/Perdita per ciascuna serie**\n");
         for (int i = 0; i < columnProfits.size(); i++) {
-            resultText.append("Serie ").append((seriesCount - 1) - i + 1).append(": ").append(columnProfits.get(i))
-                    .append("€\n");
+            resultText.append("Serie ").append(i + 1).append(": ").append(columnProfits.get(i)).append("€\n");
         }
         resultText.append("\nSomma complessiva: ").append(totalProfitLoss).append("€");
 
@@ -493,6 +504,22 @@ public class RouletteGameApp extends Application {
         });
 
         parallelTransition.play();
+    }
+
+    private String getNumberCharacteristics(int number) {
+        String color;
+        if (number == 0) {
+            color = "verde";
+        } else if ((number >= 1 && number <= 10) || (number >= 19 && number <= 28)) {
+            color = (number % 2 == 0) ? "nero" : "rosso";
+        } else {
+            color = (number % 2 == 0) ? "rosso" : "nero";
+        }
+
+        String parity = (number % 2 == 0) ? "pari" : "dispari";
+        String range = (number >= 1 && number <= 18) ? "basso" : (number >= 19 && number <= 36) ? "alto" : "";
+
+        return color + ", " + parity + ", " + range;
     }
 
     public static void main(String... args) {
