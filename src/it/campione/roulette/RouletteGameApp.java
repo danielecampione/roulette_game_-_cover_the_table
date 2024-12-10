@@ -217,7 +217,7 @@ public class RouletteGameApp extends Application {
 
         for (int series = 0; series < seriesCount; series++) {
             boolean stopGame = false;
-            int attempts = 0;
+            int failuresCount = 0;
             int columnProfitLoss = 0;
 
             for (int i = 0; i < runtimeBets.size(); i++) {
@@ -228,8 +228,7 @@ public class RouletteGameApp extends Application {
                 extractedNumbers.add(result); // Aggiungi il numero estratto alla lista
 
                 if (stopGame) {
-                    if (attempts < retryCount) {
-                        attempts++;
+                    if (failuresCount < retryCount + 1) {
                         if (bet.shouldIgnore()) {
                             results.get(i).append("=");
                             continue;
@@ -237,7 +236,11 @@ public class RouletteGameApp extends Application {
                             stopGame = false;
                         }
                     } else {
-                        results.get(i).append("X");
+                        if (bet.shouldIgnore()) {
+                            results.get(i).append("=");
+                        } else {
+                            results.get(i).append("X");
+                        }
                         continue;
                     }
                 }
@@ -248,24 +251,31 @@ public class RouletteGameApp extends Application {
                 }
 
                 if (bet.isWinningNumber(result)) {
+                    results.get(i).append(".");
+                    totalDots++;
+                    columnProfitLoss += betUnit; // Incrementa con l'importo per numero
+                } else {
                     results.get(i).append("X");
                     stopGame = true;
+                    failuresCount++; // Incrementa il conteggio dei fallimenti
                     columnProfitLoss -= betUnit * 35; // Moltiplica per l'importo per numero
                     if (firstFailureRow == -1
                             || (i < firstFailureRow || (i == firstFailureRow && series < firstFailureSeries))) {
                         firstFailureRow = i;
                         firstFailureSeries = series;
                     }
-                    if (retryCount == 0) {
+                    if (failuresCount > retryCount + 1) {
+                        // Considera come fallimento tutto ciò che segue
                         for (int j = i + 1; j < runtimeBets.size(); j++) {
-                            results.get(j).append("X");
+                            Bet nextBet = runtimeBets.get(j);
+                            if (nextBet.shouldIgnore()) {
+                                results.get(j).append("=");
+                            } else {
+                                results.get(j).append("X");
+                            }
                         }
                         break;
                     }
-                } else {
-                    results.get(i).append(".");
-                    totalDots++;
-                    columnProfitLoss += betUnit; // Incrementa con l'importo per numero
                 }
             }
 

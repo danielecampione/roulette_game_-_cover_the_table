@@ -21,7 +21,7 @@ public class Bet {
     }
 
     public boolean isWinningNumber(int number) {
-        return number == bet1 || number == bet2;
+        return number != bet1 && number != bet2;
     }
 
     @Override
