@@ -26,9 +26,11 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.effect.InnerShadow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -359,21 +361,34 @@ public class RouletteGameApp extends Application {
     }
 
     private void addNeonEffect(TextArea textArea) {
-        textArea.getStyleClass().add("neon-border");
+        InnerShadow innerShadow = new InnerShadow();
+        innerShadow.setColor(Color.TRANSPARENT);
 
-        // Forza il refresh dello stile
-        textArea.getStyleClass().add("dummy-class");
-        textArea.getStyleClass().remove("dummy-class");
+        textArea.setEffect(innerShadow);
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(innerShadow.colorProperty(), Color.TRANSPARENT)),
+                new KeyFrame(Duration.seconds(1), new KeyValue(innerShadow.colorProperty(), Color.BLUE)));
+        timeline.play();
     }
 
     private void removeNeonEffect(TextArea textArea) {
-        Timeline neonOff = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(textArea.styleProperty(),
-                "-fx-border-color: blue; -fx-border-width: 2px; -fx-effect: innershadow(gaussian, blue, 10, 0.5, 0, 0);")),
-                new KeyFrame(Duration.millis(1000), new KeyValue(textArea.styleProperty(), "")));
-        neonOff.setOnFinished(e -> {
-            textArea.getStyleClass().remove("neon-border");
+        InnerShadow innerShadow = (InnerShadow) textArea.getEffect();
+
+        if (innerShadow == null) {
+            innerShadow = new InnerShadow();
+            innerShadow.setColor(Color.BLUE);
+            textArea.setEffect(innerShadow);
+        }
+
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(innerShadow.colorProperty(), Color.BLUE)),
+                new KeyFrame(Duration.seconds(1), new KeyValue(innerShadow.colorProperty(), Color.TRANSPARENT)));
+        timeline.setOnFinished(e -> {
+            textArea.setEffect(null);
+            textArea.setStyle(""); // Ripristina lo stile originale dal file CSS
         });
-        neonOff.play();
+        timeline.play();
     }
 
     private int getBetAmount() {
