@@ -160,9 +160,12 @@ public class RouletteGameApp extends Application {
         scaleTransition.setToX(1.0);
         scaleTransition.setToY(1.0);
 
-        fadeTransition.play();
-        translateTransition.play();
-        scaleTransition.play();
+        RotateTransition rotateTransition = new RotateTransition(Duration.millis(1000), textArea);
+        rotateTransition.setByAngle(360);
+
+        ParallelTransition parallelTransition = new ParallelTransition(fadeTransition, translateTransition,
+                scaleTransition, rotateTransition);
+        parallelTransition.play();
     }
 
     private void applyButtonEffects(Button button) {
