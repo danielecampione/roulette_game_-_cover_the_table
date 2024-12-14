@@ -135,6 +135,11 @@ public class RouletteGameApp extends Application {
         SplitPane splitPane = new SplitPane(leftBox, rightBox);
         splitPane.setDividerPositions(0.5);
 
+        retryComboBox.setOnAction(e -> applyListBoxAnimation(retryComboBox));
+        seriesComboBox.setOnAction(e -> applyListBoxAnimation(seriesComboBox));
+        betAmountComboBox.setOnAction(e -> applyListBoxAnimation(betAmountComboBox));
+        attemptLimitComboBox.setOnAction(e -> applyListBoxAnimation(attemptLimitComboBox));
+
         BorderPane root = new BorderPane();
         root.setCenter(splitPane);
         root.setRight(controlsBox);
@@ -389,6 +394,17 @@ public class RouletteGameApp extends Application {
             textArea.setStyle(""); // Ripristina lo stile originale dal file CSS
         });
         timeline.play();
+    }
+
+    private void applyListBoxAnimation(ComboBox<?> comboBox) {
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(500), comboBox);
+        scaleTransition.setFromX(1.0);
+        scaleTransition.setFromY(1.0);
+        scaleTransition.setToX(1.1);
+        scaleTransition.setToY(1.1);
+        scaleTransition.setAutoReverse(true);
+        scaleTransition.setCycleCount(2);
+        scaleTransition.play();
     }
 
     private int getBetAmount() {
