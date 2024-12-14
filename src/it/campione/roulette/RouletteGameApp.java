@@ -499,28 +499,23 @@ public class RouletteGameApp extends Application {
     }
 
     private void closeApp(Stage primaryStage) {
-        // Creiamo una transizione di dissolvenza
-        FadeTransition fadeTransition = new FadeTransition(Duration.millis(1000), primaryStage.getScene().getRoot());
-        fadeTransition.setFromValue(1.0);
-        fadeTransition.setToValue(0.0);
-
-        // Creiamo una transizione di spostamento laterale
-        TranslateTransition translateTransition = new TranslateTransition(Duration.millis(1000),
-                primaryStage.getScene().getRoot());
-        translateTransition.setFromX(0);
-        translateTransition.setToX(-primaryStage.getWidth());
+        // Creiamo una transizione di scala per simulare un'esplosione
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(1000), primaryStage.getScene().getRoot());
+        scaleTransition.setFromX(1.0);
+        scaleTransition.setFromY(1.0);
+        scaleTransition.setToX(2.0);
+        scaleTransition.setToY(2.0);
 
         // Quando la transizione è completata, chiudiamo l'app
-        fadeTransition.setOnFinished(event -> {
+        scaleTransition.setOnFinished(event -> {
             Platform.runLater(() -> {
                 primaryStage.close();
                 System.gc(); // Richiama il Garbage Collector per pulire la memoria
             });
         });
 
-        // Avvia le transizioni
-        fadeTransition.play();
-        translateTransition.play();
+        // Avvia la transizione
+        scaleTransition.play();
     }
 
     // Modifica il metodo openRouletteWindow per includere l'apertura con effetti
