@@ -9,9 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.ParallelTransition;
 import javafx.animation.RotateTransition;
 import javafx.animation.ScaleTransition;
+import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -200,6 +203,10 @@ public class RouletteGameApp extends Application {
             saveBetsToFile(runtimeBets);
         }
 
+        // Aggiungi l'effetto neon ai bordi delle text area
+        addNeonEffect(seriesTextArea);
+        addNeonEffect(resultTextArea);
+
         int retryCount = retryComboBox.getValue();
         int seriesCount = seriesComboBox.getValue();
         int betAmount = getBetAmount(); // Ottieni l'importo della puntata selezionato
@@ -209,7 +216,6 @@ public class RouletteGameApp extends Application {
         for (int i = 0; i < runtimeBets.size(); i++) {
             results.add(new StringBuilder());
         }
-
         extractedNumbers = new ArrayList<>();
         int totalDots = 0;
         int firstFailureRow = -1;
@@ -346,6 +352,28 @@ public class RouletteGameApp extends Application {
         }
 
         resultTextArea.setText(resultText.toString());
+
+        // Rimuovi l'effetto neon dopo aver completato l'estrazione
+        removeNeonEffect(seriesTextArea);
+        removeNeonEffect(resultTextArea);
+    }
+
+    private void addNeonEffect(TextArea textArea) {
+        textArea.getStyleClass().add("neon-border");
+
+        // Forza il refresh dello stile
+        textArea.getStyleClass().add("dummy-class");
+        textArea.getStyleClass().remove("dummy-class");
+    }
+
+    private void removeNeonEffect(TextArea textArea) {
+        Timeline neonOff = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(textArea.styleProperty(),
+                "-fx-border-color: blue; -fx-border-width: 2px; -fx-effect: innershadow(gaussian, blue, 10, 0.5, 0, 0);")),
+                new KeyFrame(Duration.millis(1000), new KeyValue(textArea.styleProperty(), "")));
+        neonOff.setOnFinished(e -> {
+            textArea.getStyleClass().remove("neon-border");
+        });
+        neonOff.play();
     }
 
     private int getBetAmount() {

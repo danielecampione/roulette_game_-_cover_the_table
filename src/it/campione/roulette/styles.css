@@ -10,6 +10,16 @@
     -fx-background-radius: 5px;
 }
 
+.neon-border {
+    -fx-border-color: blue;
+    -fx-border-width: 2px;
+    -fx-effect: innershadow(gaussian, blue, 10, 0.5, 0, 0);
+}
+
+.dummy-class {
+    /* Classe fittizia per forzare il refresh dello stile */
+}
+
 .button {
     -fx-background-color: #4CAF50;
     -fx-text-fill: white;
