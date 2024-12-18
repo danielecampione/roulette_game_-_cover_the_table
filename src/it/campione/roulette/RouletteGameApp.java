@@ -21,6 +21,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -28,7 +29,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.effect.InnerShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -52,25 +56,33 @@ import javafx.util.Duration;
  */
 public class RouletteGameApp extends Application {
 
+    private Stage primaryStage;
+    private Button startButton;
+    private Button openRouletteButton;
     private TextArea seriesTextArea;
     private TextArea resultTextArea;
     private ComboBox<Integer> retryComboBox;
     private ComboBox<Integer> seriesComboBox;
     private ComboBox<String> betAmountComboBox;
     private ComboBox<Integer> attemptLimitComboBox;
+    private VBox controlsBox;
+    private VBox leftBox;
+    private VBox rightBox;
     private List<Bet> bets;
     private Path seriesFilePath;
     private List<Integer> extractedNumbers;
 
     @Override
     public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+
         // Imposta la locale desiderata
         Locale locale = new Locale("en", "US"); // o "it", "IT" per l'italiano
         Messages.setLocale(locale);
 
         seriesFilePath = Paths.get("serie.txt");
         bets = loadBetsFromFile();
-        primaryStage.setTitle("Roulette Game - Cover the Table, Cover All Bases");
+        primaryStage.setTitle(Messages.getString("applicationTitle"));
 
         seriesTextArea = new TextArea();
         seriesTextArea.setPromptText(Messages.getString("excludedCouples"));
@@ -101,13 +113,13 @@ public class RouletteGameApp extends Application {
                 Messages.getString("EUR7000_EUR200PerRouletteNumber")));
         betAmountComboBox.getSelectionModel().selectFirst();
 
-        Button startButton = new Button(Messages.getString("startExtraction"));
+        startButton = new Button(Messages.getString("startExtraction"));
         startButton.getStyleClass().add("button");
         startButton.setOnAction(e -> startExtraction());
         applyButtonEffects(startButton);
 
         // Aggiungi il pulsante per aprire la finestra di gioco della roulette
-        Button openRouletteButton = new Button(Messages.getString("playRoulette"));
+        openRouletteButton = new Button(Messages.getString("playRoulette"));
         openRouletteButton.getStyleClass().add("button");
         openRouletteButton.setOnAction(e -> openRouletteWindow());
         applyButtonEffects(openRouletteButton);
@@ -117,7 +129,7 @@ public class RouletteGameApp extends Application {
         attemptLimitComboBox.getSelectionModel().selectFirst();
         attemptLimitComboBox.setDisable(false); // Abilitata inizialmente
 
-        VBox controlsBox = new VBox(10, new Label(Messages.getString("plays")), seriesComboBox,
+        controlsBox = new VBox(10, new Label(Messages.getString("plays")), seriesComboBox,
                 new Label(Messages.getString("retryOnLoss")), retryComboBox,
                 new Label(Messages.getString("betsOnTheTable")), betAmountComboBox,
                 new Label(Messages.getString("sumEURUpTo")), attemptLimitComboBox, startButton, openRouletteButton);
@@ -137,9 +149,9 @@ public class RouletteGameApp extends Application {
         VBox.setVgrow(seriesTextArea, Priority.ALWAYS);
         VBox.setVgrow(resultTextArea, Priority.ALWAYS);
 
-        VBox leftBox = new VBox(10, new Label(Messages.getString("excludedCouples")), seriesTextArea);
+        leftBox = new VBox(10, new Label(Messages.getString("excludedCouples")), seriesTextArea);
         leftBox.getChildren().get(0).getStyleClass().add("label");
-        VBox rightBox = new VBox(10, new Label(Messages.getString("outcomeOfTheDraw")), resultTextArea);
+        rightBox = new VBox(10, new Label(Messages.getString("outcomeOfTheDraw")), resultTextArea);
         rightBox.getChildren().get(0).getStyleClass().add("label");
         SplitPane splitPane = new SplitPane(leftBox, rightBox);
         splitPane.setDividerPositions(0.5);
@@ -152,6 +164,9 @@ public class RouletteGameApp extends Application {
         BorderPane root = new BorderPane();
         root.setCenter(splitPane);
         root.setRight(controlsBox);
+
+        // Imposta il pannello delle bandiere per il cambio della lingua
+        setupLanguageSwitcher(root);
 
         Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
@@ -596,6 +611,64 @@ public class RouletteGameApp extends Application {
         String range = (number >= 1 && number <= 18) ? "basso" : (number >= 19 && number <= 36) ? "alto" : "";
 
         return color + ", " + parity + ", " + range;
+    }
+
+    private void setupLanguageSwitcher(BorderPane root) {
+        // Carica le immagini delle bandiere
+        ImageView itFlag = new ImageView(new Image(getClass().getResourceAsStream("/images/it_flag.png")));
+        ImageView enFlag = new ImageView(new Image(getClass().getResourceAsStream("/images/en_flag.png")));
+
+        // Dimensiona le immagini delle bandiere
+        itFlag.setFitWidth(30);
+        itFlag.setFitHeight(20);
+        enFlag.setFitWidth(30);
+        enFlag.setFitHeight(20);
+
+        // Crea un HBox per contenere le bandiere
+        HBox flagBox = new HBox(10, enFlag, itFlag);
+        flagBox.setPadding(new Insets(10));
+        flagBox.setAlignment(Pos.TOP_RIGHT);
+
+        // Aggiungi l'HBox al layout principale
+        root.setTop(flagBox);
+
+        // Aggiungi EventHandler per il cambio della lingua
+        enFlag.setOnMouseClicked(event -> switchLanguage("en", "US"));
+        itFlag.setOnMouseClicked(event -> switchLanguage("it", "IT"));
+    }
+
+    private void switchLanguage(String lang, String country) {
+        Locale locale = new Locale(lang, country);
+        Messages.setLocale(locale);
+
+        // Aggiorna i testi dell'interfaccia
+        updateTexts();
+    }
+
+    private void updateTexts() {
+        primaryStage.setTitle(Messages.getString("applicationTitle"));
+        seriesTextArea.setPromptText(Messages.getString("excludedCouples"));
+        resultTextArea.setPromptText(Messages.getString("outcomeOfTheDraw"));
+        startButton.setText(Messages.getString("startExtraction"));
+        openRouletteButton.setText(Messages.getString("playRoulette"));
+
+        // Aggiorna i testi nelle ComboBox
+        betAmountComboBox.setItems(FXCollections.observableArrayList(Messages.getString("EUR35_EUR1PerRouletteNumber"),
+                Messages.getString("EUR70_EUR2PerRouletteNumber"), Messages.getString("EUR105_EUR3PerRouletteNumber"),
+                Messages.getString("EUR3500_EUR100PerRouletteNumber"),
+                Messages.getString("EUR5250_EUR150PerRouletteNumber"),
+                Messages.getString("EUR7000_EUR200PerRouletteNumber")));
+        betAmountComboBox.getSelectionModel().selectFirst();
+
+        // Aggiorna i testi nelle Vbox
+        controlsBox.getChildren().setAll(new Label(Messages.getString("plays")), seriesComboBox,
+                new Label(Messages.getString("retryOnLoss")), retryComboBox,
+                new Label(Messages.getString("betsOnTheTable")), betAmountComboBox,
+                new Label(Messages.getString("sumEURUpTo")), attemptLimitComboBox, startButton, openRouletteButton);
+
+        leftBox.getChildren().setAll(new Label(Messages.getString("excludedCouples")), seriesTextArea);
+        rightBox.getChildren().setAll(new Label(Messages.getString("outcomeOfTheDraw")), resultTextArea);
+
     }
 
     public static void main(String... args) {
