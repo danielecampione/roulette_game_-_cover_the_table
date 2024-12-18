@@ -644,6 +644,14 @@ public class RouletteGameApp extends Application {
         // Aggiungi EventHandler per il cambio della lingua
         enFlag.setOnMouseClicked(event -> switchLanguage("en", "US"));
         itFlag.setOnMouseClicked(event -> switchLanguage("it", "IT"));
+
+        // Cambia il cursore su mano quando il mouse entra nella bandiera
+        enFlag.setOnMouseEntered(event -> enFlag.setStyle("-fx-cursor: hand;"));
+        itFlag.setOnMouseEntered(event -> itFlag.setStyle("-fx-cursor: hand;"));
+
+        // Ripristina il cursore su predefinito quando il mouse lascia la bandiera
+        enFlag.setOnMouseExited(event -> enFlag.setStyle("-fx-cursor: default;"));
+        itFlag.setOnMouseExited(event -> itFlag.setStyle("-fx-cursor: default;"));
     }
 
     private void switchLanguage(String lang, String country) {
