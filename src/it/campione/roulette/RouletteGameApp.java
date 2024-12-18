@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
@@ -63,18 +64,22 @@ public class RouletteGameApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        // Imposta la locale desiderata
+        Locale locale = new Locale("en", "US"); // o "it", "IT" per l'italiano
+        Messages.setLocale(locale);
+
         seriesFilePath = Paths.get("serie.txt");
         bets = loadBetsFromFile();
         primaryStage.setTitle("Roulette Game - Cover the Table, Cover All Bases");
 
         seriesTextArea = new TextArea();
-        seriesTextArea.setPromptText("Coppie escluse");
+        seriesTextArea.setPromptText(Messages.getString("excludedCouples"));
         seriesTextArea.setText(loadSeriesFromFile());
         seriesTextArea.getStyleClass().add("text-area");
         seriesTextArea.setWrapText(true);
 
         resultTextArea = new TextArea();
-        resultTextArea.setPromptText("Esito dell'estrazione");
+        resultTextArea.setPromptText(Messages.getString("outcomeOfTheDraw"));
         resultTextArea.getStyleClass().add("text-area");
         resultTextArea.setWrapText(false);
         resultTextArea.setEditable(false);
@@ -88,18 +93,21 @@ public class RouletteGameApp extends Application {
         seriesComboBox = new ComboBox<>(FXCollections.observableArrayList(1, 2, 5, 10, 50, 100));
         seriesComboBox.getSelectionModel().selectFirst();
 
-        betAmountComboBox = new ComboBox<>(FXCollections.observableArrayList("35 € (1 € per numero)",
-                "70 € (2 € per numero)", "105 € (3 € per numero)", "3.500 € (100 € per numero)",
-                "5.250 € (150 € per numero)", "7.000 € (200 € per numero)"));
+        betAmountComboBox = new ComboBox<>(FXCollections.observableArrayList(
+                Messages.getString("EUR35_EUR1PerRouletteNumber"), Messages.getString("EUR70_EUR2PerRouletteNumber"),
+                Messages.getString("EUR105_EUR3PerRouletteNumber"),
+                Messages.getString("EUR3500_EUR100PerRouletteNumber"),
+                Messages.getString("EUR5250_EUR150PerRouletteNumber"),
+                Messages.getString("EUR7000_EUR200PerRouletteNumber")));
         betAmountComboBox.getSelectionModel().selectFirst();
 
-        Button startButton = new Button("Avvia estrazione");
+        Button startButton = new Button(Messages.getString("startExtraction"));
         startButton.getStyleClass().add("button");
         startButton.setOnAction(e -> startExtraction());
         applyButtonEffects(startButton);
 
         // Aggiungi il pulsante per aprire la finestra di gioco della roulette
-        Button openRouletteButton = new Button("Gioca alla Roulette");
+        Button openRouletteButton = new Button(Messages.getString("playRoulette"));
         openRouletteButton.getStyleClass().add("button");
         openRouletteButton.setOnAction(e -> openRouletteWindow());
         applyButtonEffects(openRouletteButton);
@@ -109,9 +117,10 @@ public class RouletteGameApp extends Application {
         attemptLimitComboBox.getSelectionModel().selectFirst();
         attemptLimitComboBox.setDisable(false); // Abilitata inizialmente
 
-        VBox controlsBox = new VBox(10, new Label("Giocate"), seriesComboBox, new Label("Ritenta in caso di sconfitta"),
-                retryComboBox, new Label("Puntate sul tavolo"), betAmountComboBox,
-                new Label("Somma € fino a (0 = no limite)"), attemptLimitComboBox, startButton, openRouletteButton);
+        VBox controlsBox = new VBox(10, new Label(Messages.getString("plays")), seriesComboBox,
+                new Label(Messages.getString("retryOnLoss")), retryComboBox,
+                new Label(Messages.getString("betsOnTheTable")), betAmountComboBox,
+                new Label(Messages.getString("sumEURUpTo")), attemptLimitComboBox, startButton, openRouletteButton);
         controlsBox.setPadding(new Insets(10));
 
         // Aggiungi il listener per la ComboBox "Giocate"
@@ -128,9 +137,9 @@ public class RouletteGameApp extends Application {
         VBox.setVgrow(seriesTextArea, Priority.ALWAYS);
         VBox.setVgrow(resultTextArea, Priority.ALWAYS);
 
-        VBox leftBox = new VBox(10, new Label("Coppie escluse"), seriesTextArea);
+        VBox leftBox = new VBox(10, new Label(Messages.getString("excludedCouples")), seriesTextArea);
         leftBox.getChildren().get(0).getStyleClass().add("label");
-        VBox rightBox = new VBox(10, new Label("Esito dell'estrazione"), resultTextArea);
+        VBox rightBox = new VBox(10, new Label(Messages.getString("outcomeOfTheDraw")), resultTextArea);
         rightBox.getChildren().get(0).getStyleClass().add("label");
         SplitPane splitPane = new SplitPane(leftBox, rightBox);
         splitPane.setDividerPositions(0.5);

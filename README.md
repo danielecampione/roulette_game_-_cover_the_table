@@ -97,6 +97,6 @@ ignora
 ```
 }
 
-![Png](https://i.ibb.co/MhhPnpW/01.png)
+![Png](https://i.ibb.co/d4Qh31T/01.png)
 
-![Png](https://i.ibb.co/3N64WqH/02.png)
+![Png](https://i.ibb.co/4fHLm2k/02.png)
