@@ -328,27 +328,30 @@ public class RouletteGameApp extends Application {
             if (seriesCount == 1 && i < extractedNumbers.size()) {
                 int extractedNumber = extractedNumbers.get(i);
                 String characteristics = getNumberCharacteristics(extractedNumber);
-                resultText.append(", numero estratto: ").append(extractedNumber).append(" (").append(characteristics)
-                        .append(")");
+                resultText.append(", " + Messages.getString("numberDrawn") + ": ").append(extractedNumber).append(" (")
+                        .append(characteristics).append(")");
             }
             resultText.append("\n");
         }
 
         double averageDots = seriesCount > 0 ? (double) totalDots / seriesCount : 0;
-        resultText.append("\nMedia dei punti (ovvero delle vittorie): ").append(averageDots);
+        resultText.append("\n" + Messages.getString("averagePoints") + ": ").append(averageDots);
 
         if (firstFailureRow != -1) {
-            resultText.append("\nIl primo fallimento si registra dopo ").append(firstFailureRow + 1)
-                    .append(" tentativi nella serie ").append(firstFailureSeries + 1).append(".");
+            resultText.append("\n" + Messages.getString("theFirstFailureIsRecordedAfter") + " ")
+                    .append(firstFailureRow + 1).append(" " + Messages.getString("attemptsInTheSeries") + " ")
+                    .append(firstFailureSeries + 1).append(".");
         } else {
-            resultText.append("\nNon ci sono stati fallimenti nelle serie.");
+            resultText.append("\n" + Messages.getString("thereWereNoFailuresInTheSeries"));
         }
 
-        resultText.append("\n\n**Guadagno/Perdita per ciascuna serie**\n");
+        resultText.append("\n\n**" + Messages.getString("gainLossForEachSeries") + "**\n");
         for (int i = 0; i < columnProfits.size(); i++) {
-            resultText.append("Serie ").append(i + 1).append(": ").append(columnProfits.get(i)).append("€\n");
+            resultText.append(Messages.getString("series") + " ").append(i + 1).append(": ")
+                    .append(columnProfits.get(i)).append(Messages.getString("euro") + "\n");
         }
-        resultText.append("\nSomma complessiva: ").append(totalProfitLoss).append("€");
+        resultText.append("\n" + Messages.getString("totalSum") + ": ").append(totalProfitLoss)
+                .append(Messages.getString("euro"));
 
         // Calcola il guadagno/perdita fino al tentativo impostato
         int attemptLimit = attemptLimitComboBox.getValue();
@@ -377,8 +380,8 @@ public class RouletteGameApp extends Application {
                 limitedProfitLoss = totalProfitLoss;
             }
 
-            resultText.append("\nGuadagno/Perdita fino al tentativo ").append(attemptLimit).append(": ")
-                    .append(limitedProfitLoss).append("€");
+            resultText.append("\n" + Messages.getString("gainLossUpToAttempt") + " ").append(attemptLimit).append(": ")
+                    .append(limitedProfitLoss).append(Messages.getString("euro"));
         }
 
         resultTextArea.setText(resultText.toString());
@@ -432,18 +435,25 @@ public class RouletteGameApp extends Application {
 
     private int getBetAmount() {
         String selectedBet = betAmountComboBox.getValue();
+
         switch (selectedBet) {
-        case "70 € (2 € per numero)":
+        case "70 \u20AC (2 \u20AC per numero)":
+        case "70 \u20AC (2 \u20AC per number)":
             return 70;
-        case "105 € (3 € per numero)":
+        case "105 \u20AC (3 \u20AC per numero)":
+        case "105 \u20AC (3 \u20AC per number)":
             return 105;
-        case "3.500 € (100 € per numero)":
+        case "3.500 \u20AC (100 \u20AC per numero)":
+        case "3.500 \u20AC (100 \u20AC per number)":
             return 3500;
-        case "5.250 € (150 € per numero)":
+        case "5.250 \u20AC (150 \u20AC per numero)":
+        case "5.250 \u20AC (150 \u20AC per number)":
             return 5250;
-        case "7.000 € (200 € per numero)":
+        case "7.000 \u20AC (200 \u20AC per numero)":
+        case "7.000 \u20AC (200 \u20AC per number)":
             return 7000;
-        case "35 € (1 € per numero)":
+        case "35 \u20AC (1 \u20AC per numero)":
+        case "35 \u20AC (1 \u20AC per number)":
         default:
             return 35;
         }
@@ -599,15 +609,16 @@ public class RouletteGameApp extends Application {
     private String getNumberCharacteristics(int number) {
         String color;
         if (number == 0) {
-            color = "verde";
+            color = Messages.getString("green");
         } else if ((number >= 1 && number <= 10) || (number >= 19 && number <= 28)) {
-            color = (number % 2 == 0) ? "nero" : "rosso";
+            color = (number % 2 == 0) ? Messages.getString("black") : Messages.getString("red");
         } else {
-            color = (number % 2 == 0) ? "rosso" : "nero";
+            color = (number % 2 == 0) ? Messages.getString("red") : Messages.getString("black");
         }
 
-        String parity = (number % 2 == 0) ? "pari" : "dispari";
-        String range = (number >= 1 && number <= 18) ? "basso" : (number >= 19 && number <= 36) ? "alto" : "";
+        String parity = (number % 2 == 0) ? Messages.getString("even") : Messages.getString("odd");
+        String range = (number >= 1 && number <= 18) ? Messages.getString("low")
+                : (number >= 19 && number <= 36) ? Messages.getString("high") : "";
 
         return color + ", " + parity + ", " + range;
     }
