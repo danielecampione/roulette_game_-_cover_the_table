@@ -76,7 +76,6 @@ public class RouletteGameApp extends Application {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
 
-        // Imposta la locale desiderata
         Locale locale = new Locale("en", "US"); // o "it", "IT" per l'italiano
         Messages.setLocale(locale);
 
@@ -118,7 +117,6 @@ public class RouletteGameApp extends Application {
         startButton.setOnAction(e -> startExtraction());
         applyButtonEffects(startButton);
 
-        // Aggiungi il pulsante per aprire la finestra di gioco della roulette
         openRouletteButton = new Button(Messages.getString("playRoulette"));
         openRouletteButton.getStyleClass().add("button");
         openRouletteButton.setOnAction(e -> openRouletteWindow());
@@ -135,14 +133,12 @@ public class RouletteGameApp extends Application {
                 new Label(Messages.getString("sumEURUpTo")), attemptLimitComboBox, startButton, openRouletteButton);
         controlsBox.setPadding(new Insets(10));
 
-        // Aggiungi il listener per la ComboBox "Giocate"
         seriesComboBox.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
             if (newValue.equals(1)) {
                 attemptLimitComboBox.setDisable(false);
             } else {
                 attemptLimitComboBox.setDisable(true);
-                attemptLimitComboBox.getSelectionModel().selectFirst(); // Resetta a "Nessun limite imposto" se
-                                                                        // disabilitato
+                attemptLimitComboBox.getSelectionModel().selectFirst();
             }
         });
 
@@ -151,8 +147,10 @@ public class RouletteGameApp extends Application {
 
         leftBox = new VBox(10, new Label(Messages.getString("excludedCouples")), seriesTextArea);
         leftBox.getChildren().get(0).getStyleClass().add("label");
+
         rightBox = new VBox(10, new Label(Messages.getString("outcomeOfTheDraw")), resultTextArea);
         rightBox.getChildren().get(0).getStyleClass().add("label");
+
         SplitPane splitPane = new SplitPane(leftBox, rightBox);
         splitPane.setDividerPositions(0.5);
 
@@ -165,8 +163,9 @@ public class RouletteGameApp extends Application {
         root.setCenter(splitPane);
         root.setRight(controlsBox);
 
-        // Imposta il pannello delle bandiere per il cambio della lingua
-        setupLanguageSwitcher(root);
+        // Imposta il pannello delle bandiere per il cambio della lingua all'interno di
+        // controlsBox
+        setupLanguageSwitcher(controlsBox);
 
         Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
@@ -613,7 +612,7 @@ public class RouletteGameApp extends Application {
         return color + ", " + parity + ", " + range;
     }
 
-    private void setupLanguageSwitcher(BorderPane root) {
+    private void setupLanguageSwitcher(VBox controlsBox) {
         // Carica le immagini delle bandiere
         ImageView itFlag = new ImageView(new Image(getClass().getResourceAsStream("/images/it_flag.png")));
         ImageView enFlag = new ImageView(new Image(getClass().getResourceAsStream("/images/en_flag.png")));
@@ -626,11 +625,10 @@ public class RouletteGameApp extends Application {
 
         // Crea un HBox per contenere le bandiere
         HBox flagBox = new HBox(10, enFlag, itFlag);
-        flagBox.setPadding(new Insets(10));
-        flagBox.setAlignment(Pos.TOP_RIGHT);
+        flagBox.setAlignment(Pos.CENTER_RIGHT);
 
-        // Aggiungi l'HBox al layout principale
-        root.setTop(flagBox);
+        // Aggiungi l'HBox alla VBox dei controlli
+        controlsBox.getChildren().add(0, flagBox); // Aggiungi il flagBox in cima ai controlli
 
         // Aggiungi EventHandler per il cambio della lingua
         enFlag.setOnMouseClicked(event -> switchLanguage("en", "US"));
@@ -661,14 +659,19 @@ public class RouletteGameApp extends Application {
         betAmountComboBox.getSelectionModel().selectFirst();
 
         // Aggiorna i testi nelle Vbox
-        controlsBox.getChildren().setAll(new Label(Messages.getString("plays")), seriesComboBox,
+        controlsBox.getChildren().clear(); // Prima puliamo i controlli esistenti
+
+        // Creiamo di nuovo il pannello delle bandiere
+        setupLanguageSwitcher(controlsBox);
+
+        // Ora aggiungiamo nuovamente tutti i controlli con i testi aggiornati
+        controlsBox.getChildren().addAll(new Label(Messages.getString("plays")), seriesComboBox,
                 new Label(Messages.getString("retryOnLoss")), retryComboBox,
                 new Label(Messages.getString("betsOnTheTable")), betAmountComboBox,
                 new Label(Messages.getString("sumEURUpTo")), attemptLimitComboBox, startButton, openRouletteButton);
 
         leftBox.getChildren().setAll(new Label(Messages.getString("excludedCouples")), seriesTextArea);
         rightBox.getChildren().setAll(new Label(Messages.getString("outcomeOfTheDraw")), resultTextArea);
-
     }
 
     public static void main(String... args) {
