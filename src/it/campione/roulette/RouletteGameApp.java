@@ -42,14 +42,14 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 /**
- * Il metodo analizzato in questa applicazione è noto come "Cover the Table" o
- * "Cover All Bases". Questo sistema prevede di coprire quasi tutti i numeri sul
- * tavolo della roulette, lasciando scoperti solo pochissimi numeri, come ad
- * esempio due. L'obiettivo è massimizzare le probabilità di vincita su ogni
- * giro della ruota, anche se il profitto per ogni vincita è generalmente basso
- * rispetto alla puntata totale. L'applicazione dimostra che il banco vince
- * sempre e che lo fa anche molto presto. Persino il metodo "Cover the table" è
- * pertanto molto rischioso per il giocatore.
+ * The method analyzed in this application is known as "Cover the Table" or
+ * "Cover All Bases". This system involves covering almost all the numbers on
+ * the roulette table, leaving only a few numbers uncovered, as for example two.
+ * The goal is to maximize the chances of winning on each spin of the wheel,
+ * although the profit for each win is generally low compared to the total bet.
+ * The application proves that the dealer wins always and that he does it very
+ * soon. Even the "Cover the table" method is therefore very risky for the
+ * player.
  * 
  * @author D. Campione
  *
@@ -76,7 +76,7 @@ public class RouletteGameApp extends Application {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
 
-        Locale locale = new Locale("en", "US"); // o "it", "IT" per l'italiano
+        Locale locale = new Locale("en", "US"); // or "it", "IT" for Italian
         Messages.setLocale(locale);
 
         seriesFilePath = Paths.get("serie.txt");
@@ -125,7 +125,7 @@ public class RouletteGameApp extends Application {
         attemptLimitComboBox = new ComboBox<>(
                 FXCollections.observableArrayList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50));
         attemptLimitComboBox.getSelectionModel().selectFirst();
-        attemptLimitComboBox.setDisable(false); // Abilitata inizialmente
+        attemptLimitComboBox.setDisable(false); // Initially enabled
 
         controlsBox = new VBox(10, new Label(Messages.getString("plays")), seriesComboBox,
                 new Label(Messages.getString("retryOnLoss")), retryComboBox,
@@ -163,8 +163,7 @@ public class RouletteGameApp extends Application {
         root.setCenter(splitPane);
         root.setRight(controlsBox);
 
-        // Imposta il pannello delle bandiere per il cambio della lingua all'interno di
-        // controlsBox
+        // Set the flag panel for language switching within controlsBox
         setupLanguageSwitcher(controlsBox);
 
         Scene scene = new Scene(root, 800, 600);
@@ -172,7 +171,7 @@ public class RouletteGameApp extends Application {
         primaryStage.setScene(scene);
 
         primaryStage.setOnCloseRequest(event -> {
-            event.consume(); // Consuma l'evento di chiusura per gestirlo manualmente
+            event.consume(); // Consume the close event to handle it manually
             closeApp(primaryStage);
         });
         primaryStage.show();
@@ -233,14 +232,14 @@ public class RouletteGameApp extends Application {
             saveBetsToFile(runtimeBets);
         }
 
-        // Aggiungi l'effetto neon ai bordi delle text area
+        // Add neon effect to text area borders
         addNeonEffect(seriesTextArea);
         addNeonEffect(resultTextArea);
 
         int retryCount = retryComboBox.getValue();
         int seriesCount = seriesComboBox.getValue();
-        int betAmount = getBetAmount(); // Ottieni l'importo della puntata selezionato
-        int betUnit = betAmount / 35; // Calcola l'importo per numero puntato
+        int betAmount = getBetAmount(); // Get your selected bet amount
+        int betUnit = betAmount / 35; // Calculate the amount per bet number
         Roulette roulette = new Roulette();
         List<StringBuilder> results = new ArrayList<>();
         for (int i = 0; i < runtimeBets.size(); i++) {
@@ -262,9 +261,9 @@ public class RouletteGameApp extends Application {
             for (int i = 0; i < runtimeBets.size(); i++) {
                 Bet bet = runtimeBets.get(i);
 
-                // Estrarre sempre il numero
+                // Always pull out the number
                 int result = roulette.spin();
-                extractedNumbers.add(result); // Aggiungi il numero estratto alla lista
+                extractedNumbers.add(result); // Add the drawn number to the list
 
                 if (stopGame) {
                     if (failuresCount < retryCount + 1) {
@@ -292,19 +291,19 @@ public class RouletteGameApp extends Application {
                 if (bet.isWinningNumber(result)) {
                     results.get(i).append(".");
                     totalDots++;
-                    columnProfitLoss += betUnit; // Incrementa con l'importo per numero
+                    columnProfitLoss += betUnit; // Increment with amount by number
                 } else {
                     results.get(i).append("X");
                     stopGame = true;
-                    failuresCount++; // Incrementa il conteggio dei fallimenti
-                    columnProfitLoss -= betUnit * 35; // Moltiplica per l'importo per numero
+                    failuresCount++; // Increase failure count
+                    columnProfitLoss -= betUnit * 35; // Multiply by Amount by Number
                     if (firstFailureRow == -1
                             || (i < firstFailureRow || (i == firstFailureRow && series < firstFailureSeries))) {
                         firstFailureRow = i;
                         firstFailureSeries = series;
                     }
                     if (failuresCount > retryCount + 1) {
-                        // Considera come fallimento tutto ciò che segue
+                        // Consider everything that follows as failure
                         for (int j = i + 1; j < runtimeBets.size(); j++) {
                             Bet nextBet = runtimeBets.get(j);
                             if (nextBet.shouldIgnore()) {
@@ -353,7 +352,7 @@ public class RouletteGameApp extends Application {
         resultText.append("\n" + Messages.getString("totalSum") + ": ").append(totalProfitLoss)
                 .append(Messages.getString("euro"));
 
-        // Calcola il guadagno/perdita fino al tentativo impostato
+        // Calculate gain/loss until set attempt
         int attemptLimit = attemptLimitComboBox.getValue();
         if (attemptLimit != 0) {
             int limitedProfitLoss = 0;
@@ -366,16 +365,16 @@ public class RouletteGameApp extends Application {
                         break;
                     }
                     if (c == '.') {
-                        limitedProfitLoss += betUnit; // Incrementa con l'importo per numero
+                        limitedProfitLoss += betUnit; // Increment with amount by number
                     } else if (c == 'X') {
-                        limitedProfitLoss -= betUnit * 35; // Moltiplica per l'importo per numero
+                        limitedProfitLoss -= betUnit * 35; // Multiply by Amount by Number
                     }
                     attempts++;
                 }
             }
 
-            // Se la somma limitata è inferiore alla somma complessiva e la somma
-            // complessiva è strettamente negativa, usa la somma complessiva
+            // If the capped sum is less than the aggregate sum and the aggregate sum is
+            // strictly negative, use the aggregate sum
             if (limitedProfitLoss < totalProfitLoss && totalProfitLoss < 0) {
                 limitedProfitLoss = totalProfitLoss;
             }
@@ -386,7 +385,7 @@ public class RouletteGameApp extends Application {
 
         resultTextArea.setText(resultText.toString());
 
-        // Rimuovi l'effetto neon dopo aver completato l'estrazione
+        // Remove the neon effect after completing the extraction
         removeNeonEffect(seriesTextArea);
         removeNeonEffect(resultTextArea);
     }
@@ -417,7 +416,7 @@ public class RouletteGameApp extends Application {
                 new KeyFrame(Duration.seconds(1), new KeyValue(innerShadow.colorProperty(), Color.TRANSPARENT)));
         timeline.setOnFinished(e -> {
             textArea.setEffect(null);
-            textArea.setStyle(""); // Ripristina lo stile originale dal file CSS
+            textArea.setStyle(""); // Restore the original style from the CSS file
         });
         timeline.play();
     }
@@ -471,13 +470,13 @@ public class RouletteGameApp extends Application {
                     if ((bet1 >= 0 && bet1 <= 36) && (bet2 >= 0 && bet2 <= 36)) {
                         runtimeBets.add(new Bet(bet1, bet2));
                     } else {
-                        runtimeBets.add(new Bet(-1, -1)); // Ignora
+                        runtimeBets.add(new Bet(-1, -1)); // Ignore
                     }
                 } catch (NumberFormatException e) {
-                    runtimeBets.add(new Bet(-1, -1)); // Ignora
+                    runtimeBets.add(new Bet(-1, -1)); // Ignore
                 }
             } else {
-                runtimeBets.add(new Bet(-1, -1)); // Ignora
+                runtimeBets.add(new Bet(-1, -1)); // Ignore
             }
         }
         return runtimeBets;
@@ -495,10 +494,10 @@ public class RouletteGameApp extends Application {
                         int bet2 = Integer.parseInt(numbers[1].trim());
                         loadedBets.add(new Bet(bet1, bet2));
                     } catch (NumberFormatException e) {
-                        loadedBets.add(new Bet(-1, -1)); // Ignora
+                        loadedBets.add(new Bet(-1, -1)); // Ignore
                     }
                 } else {
-                    loadedBets.add(new Bet(-1, -1)); // Ignora
+                    loadedBets.add(new Bet(-1, -1)); // Ignore
                 }
             }
         } catch (IOException e) {
@@ -532,58 +531,58 @@ public class RouletteGameApp extends Application {
     }
 
     private void closeApp(Stage primaryStage) {
-        // Creiamo una transizione di scala per simulare un'esplosione
+        // Let's create a scale transition to simulate an explosion
         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(1000), primaryStage.getScene().getRoot());
         scaleTransition.setFromX(1.0);
         scaleTransition.setFromY(1.0);
         scaleTransition.setToX(2.0);
         scaleTransition.setToY(2.0);
 
-        // Quando la transizione è completata, chiudiamo l'app
+        // When the transition is complete, we close the app
         scaleTransition.setOnFinished(event -> {
             Platform.runLater(() -> {
                 primaryStage.close();
-                System.gc(); // Richiama il Garbage Collector per pulire la memoria
+                System.gc(); // Invoke the Garbage Collector to clean up the memory
             });
         });
 
-        // Avvia la transizione
+        // Start the transition
         scaleTransition.play();
     }
 
-    // Modifica il metodo openRouletteWindow per includere l'apertura con effetti
+    // Modify the openRouletteWindow method to include opening with effects
     private void openRouletteWindow() {
-        // Crea una nuova finestra
+        // Create a new window
         Stage rouletteStage = new Stage();
         rouletteStage.initModality(Modality.APPLICATION_MODAL);
         rouletteStage.setTitle("Gioca alla Roulette");
 
-        // Crea un WebView e carica il file HTML
+        // Create a WebView and upload the HTML file
         WebView webView = new WebView();
         webView.getEngine().load(getClass().getResource("roulette.html").toExternalForm());
 
-        // Aggiungi il WebView alla scena e configura la finestra
+        // Add the WebView to the scene and configure the window
         Scene scene = new Scene(webView, 800, 800);
         rouletteStage.setScene(scene);
 
-        // Mostra la finestra immediatamente
+        // Show the window immediately
         rouletteStage.show();
 
-        // Aggiungi il comportamento di chiusura con effetti
+        // Add closing behavior with effects
         rouletteStage.setOnCloseRequest(event -> {
-            event.consume(); // Consuma l'evento di chiusura per gestirlo manualmente
+            event.consume(); // Consume the close event to handle it manually
             closeRouletteWindow(rouletteStage);
         });
     }
 
     private void closeRouletteWindow(Stage rouletteStage) {
-        // Creiamo una transizione di rotazione
+        // Let's create a rotation transition
         RotateTransition rotateTransition = new RotateTransition(Duration.millis(1000),
                 rouletteStage.getScene().getRoot());
         rotateTransition.setFromAngle(0);
         rotateTransition.setToAngle(360);
 
-        // Creiamo una transizione di scala
+        // Let's create a scale transition
         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(1000),
                 rouletteStage.getScene().getRoot());
         scaleTransition.setFromX(1.0);
@@ -591,12 +590,12 @@ public class RouletteGameApp extends Application {
         scaleTransition.setToX(0.5);
         scaleTransition.setToY(0.5);
 
-        // Creiamo una transizione di dissolvenza
+        // Let's create a fade transition
         FadeTransition fadeTransition = new FadeTransition(Duration.millis(1000), rouletteStage.getScene().getRoot());
         fadeTransition.setFromValue(1.0);
         fadeTransition.setToValue(0.0);
 
-        // Eseguiamo le transizioni in parallelo
+        // We perform transitions in parallel
         ParallelTransition parallelTransition = new ParallelTransition(rotateTransition, scaleTransition,
                 fadeTransition);
         parallelTransition.setOnFinished(event -> {
@@ -624,51 +623,51 @@ public class RouletteGameApp extends Application {
     }
 
     private void setupLanguageSwitcher(VBox controlsBox) {
-        // Carica le immagini delle bandiere
+        // Upload flag images
         ImageView itFlag = new ImageView(new Image(getClass().getResourceAsStream("/images/it_flag.png")));
         ImageView enFlag = new ImageView(new Image(getClass().getResourceAsStream("/images/en_flag.png")));
 
-        // Dimensiona le immagini delle bandiere
+        // Size Flag Images
         itFlag.setFitWidth(30);
         itFlag.setFitHeight(20);
         enFlag.setFitWidth(30);
         enFlag.setFitHeight(20);
 
-        // Crea un HBox per contenere le bandiere
+        // Create an HBox to hold flags
         HBox flagBox = new HBox(10, enFlag, itFlag);
         flagBox.setAlignment(Pos.CENTER_RIGHT);
 
-        // Aggiungi l'HBox alla VBox dei controlli
-        controlsBox.getChildren().add(0, flagBox); // Aggiungi il flagBox in cima ai controlli
+        // Add HBox to VBox of controls
+        controlsBox.getChildren().add(0, flagBox); // Add the Box flag to the top of the controls
 
-        // Aggiungi EventHandler per il cambio della lingua
+        // Add EventHandler for language switching
         enFlag.setOnMouseClicked(event -> switchLanguage("en", "US"));
         itFlag.setOnMouseClicked(event -> switchLanguage("it", "IT"));
 
-        // Animazioni per quando il mouse entra nella bandiera
+        // Animations for when the mouse enters the flag
         enFlag.setOnMouseEntered(event -> {
             enFlag.setStyle("-fx-cursor: hand;");
-            animateFlag(enFlag, 1.2); // Scala la bandiera al 120% della dimensione originale
+            animateFlag(enFlag, 1.2); // Scale the flag to 120% of its original size
         });
         itFlag.setOnMouseEntered(event -> {
             itFlag.setStyle("-fx-cursor: hand;");
-            animateFlag(itFlag, 1.2); // Scala la bandiera al 120% della dimensione originale
+            animateFlag(itFlag, 1.2); // Scale the flag to 120% of its original size
         });
 
-        // Animazioni per quando il mouse esce dalla bandiera
+        // Animations for when the mouse leaves the flag
         enFlag.setOnMouseExited(event -> {
             enFlag.setStyle("-fx-cursor: default;");
-            animateFlag(enFlag, 1.0); // Scala la bandiera alla dimensione originale
+            animateFlag(enFlag, 1.0); // Scale the flag to its original size
         });
         itFlag.setOnMouseExited(event -> {
             itFlag.setStyle("-fx-cursor: default;");
-            animateFlag(itFlag, 1.0); // Scala la bandiera alla dimensione originale
+            animateFlag(itFlag, 1.0); // Scale the flag to its original size
         });
     }
 
     private void animateFlag(ImageView flag, double scale) {
-        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(150), flag); // 150 millisecondi per una
-                                                                                           // maggiore fluidità
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(150), flag); // 150 milliseconds for a
+                                                                                           // better fluidity
         scaleTransition.setToX(scale);
         scaleTransition.setToY(scale);
         scaleTransition.play();
@@ -678,7 +677,7 @@ public class RouletteGameApp extends Application {
         Locale locale = new Locale(lang, country);
         Messages.setLocale(locale);
 
-        // Aggiorna i testi dell'interfaccia
+        // Update the interface texts
         updateTexts();
     }
 
@@ -689,7 +688,7 @@ public class RouletteGameApp extends Application {
         startButton.setText(Messages.getString("startExtraction"));
         openRouletteButton.setText(Messages.getString("playRoulette"));
 
-        // Aggiorna i testi nelle ComboBox
+        // Update texts in ComboBoxes
         betAmountComboBox.setItems(FXCollections.observableArrayList(Messages.getString("EUR35_EUR1PerRouletteNumber"),
                 Messages.getString("EUR70_EUR2PerRouletteNumber"), Messages.getString("EUR105_EUR3PerRouletteNumber"),
                 Messages.getString("EUR3500_EUR100PerRouletteNumber"),
@@ -697,13 +696,13 @@ public class RouletteGameApp extends Application {
                 Messages.getString("EUR7000_EUR200PerRouletteNumber")));
         betAmountComboBox.getSelectionModel().selectFirst();
 
-        // Aggiorna i testi nelle Vbox
-        controlsBox.getChildren().clear(); // Prima puliamo i controlli esistenti
+        // Update texts in Vboxes
+        controlsBox.getChildren().clear(); // First we clean the existing controls
 
-        // Creiamo di nuovo il pannello delle bandiere
+        // Let's create the flag panel again
         setupLanguageSwitcher(controlsBox);
 
-        // Ora aggiungiamo nuovamente tutti i controlli con i testi aggiornati
+        // Now let's add all the controls with the updated texts again
         controlsBox.getChildren().addAll(new Label(Messages.getString("plays")), seriesComboBox,
                 new Label(Messages.getString("retryOnLoss")), retryComboBox,
                 new Label(Messages.getString("betsOnTheTable")), betAmountComboBox,
