@@ -645,13 +645,33 @@ public class RouletteGameApp extends Application {
         enFlag.setOnMouseClicked(event -> switchLanguage("en", "US"));
         itFlag.setOnMouseClicked(event -> switchLanguage("it", "IT"));
 
-        // Cambia il cursore su mano quando il mouse entra nella bandiera
-        enFlag.setOnMouseEntered(event -> enFlag.setStyle("-fx-cursor: hand;"));
-        itFlag.setOnMouseEntered(event -> itFlag.setStyle("-fx-cursor: hand;"));
+        // Animazioni per quando il mouse entra nella bandiera
+        enFlag.setOnMouseEntered(event -> {
+            enFlag.setStyle("-fx-cursor: hand;");
+            animateFlag(enFlag, 1.2); // Scala la bandiera al 120% della dimensione originale
+        });
+        itFlag.setOnMouseEntered(event -> {
+            itFlag.setStyle("-fx-cursor: hand;");
+            animateFlag(itFlag, 1.2); // Scala la bandiera al 120% della dimensione originale
+        });
 
-        // Ripristina il cursore su predefinito quando il mouse lascia la bandiera
-        enFlag.setOnMouseExited(event -> enFlag.setStyle("-fx-cursor: default;"));
-        itFlag.setOnMouseExited(event -> itFlag.setStyle("-fx-cursor: default;"));
+        // Animazioni per quando il mouse esce dalla bandiera
+        enFlag.setOnMouseExited(event -> {
+            enFlag.setStyle("-fx-cursor: default;");
+            animateFlag(enFlag, 1.0); // Scala la bandiera alla dimensione originale
+        });
+        itFlag.setOnMouseExited(event -> {
+            itFlag.setStyle("-fx-cursor: default;");
+            animateFlag(itFlag, 1.0); // Scala la bandiera alla dimensione originale
+        });
+    }
+
+    private void animateFlag(ImageView flag, double scale) {
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(150), flag); // 150 millisecondi per una
+                                                                                           // maggiore fluidità
+        scaleTransition.setToX(scale);
+        scaleTransition.setToY(scale);
+        scaleTransition.play();
     }
 
     private void switchLanguage(String lang, String country) {
