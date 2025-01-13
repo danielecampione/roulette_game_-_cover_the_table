@@ -531,23 +531,36 @@ public class RouletteGameApp extends Application {
     }
 
     private void closeApp(Stage primaryStage) {
-        // Let's create a scale transition to simulate an explosion
-        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(1000), primaryStage.getScene().getRoot());
-        scaleTransition.setFromX(1.0);
-        scaleTransition.setFromY(1.0);
-        scaleTransition.setToX(2.0);
-        scaleTransition.setToY(2.0);
+        // Let's create a rotation transition
+        RotateTransition rotateTransition = new RotateTransition(Duration.millis(1000),
+                primaryStage.getScene().getRoot());
+        rotateTransition.setFromAngle(0); // Let's start from 0 degrees
+        rotateTransition.setToAngle(360); // We rotate 360 degrees
 
-        // When the transition is complete, we close the app
-        scaleTransition.setOnFinished(event -> {
+        // Let's create a fade transition
+        FadeTransition fadeTransition = new FadeTransition(Duration.millis(1000), primaryStage.getScene().getRoot());
+        fadeTransition.setFromValue(1.0); // Partiamo da opacità piena
+        fadeTransition.setToValue(0.0); // Arriviamo a opacità zero
+
+        // Let's create a zoom out transition (reduce size)
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(1000), primaryStage.getScene().getRoot());
+        scaleTransition.setFromX(1.0); // Let's start from the original size
+        scaleTransition.setFromY(1.0);
+        scaleTransition.setToX(0.5); // Let's reduce the size in half
+        scaleTransition.setToY(0.5);
+
+        // We perform the transitions in parallel
+        ParallelTransition parallelTransition = new ParallelTransition(rotateTransition, fadeTransition,
+                scaleTransition);
+        parallelTransition.setOnFinished(event -> {
             Platform.runLater(() -> {
-                primaryStage.close();
-                System.gc(); // Invoke the Garbage Collector to clean up the memory
+                primaryStage.close(); // We close the window when the animation is completed
+                System.gc(); // We invoke the garbage collector to free memory
             });
         });
 
-        // Start the transition
-        scaleTransition.play();
+        // Let's start the animation
+        parallelTransition.play();
     }
 
     // Modify the openRouletteWindow method to include opening with effects
