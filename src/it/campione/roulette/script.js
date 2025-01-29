@@ -1,32 +1,29 @@
 // Funzione per aggiornare la barra inferiore
 function aggiornaHistoryBar(numero, colore) {
-  const historyBar = document.querySelector('.history-bar');
-  const newItem = document.createElement('div');
-  newItem.classList.add('history-item');
-  newItem.classList.add(colore);
-  newItem.textContent = numero;
-  const animationToggle = document.getElementById('animationToggle');
-
-  if (historyBar.firstChild) {
-    historyBar.insertBefore(newItem, historyBar.firstChild);
-  } else {
-    historyBar.appendChild(newItem);
-  }
-
-  // Rimuovi l'ultimo elemento se ce ne sono più di 20, senza animazione
-  if (historyBar.childElementCount > 20) {
-    const lastItem = historyBar.lastChild;
-    historyBar.removeChild(lastItem);
-  }
-
-  if (animationToggle.checked) {
-    // Forza il layout per garantire che l'animazione di comparsa sia applicata
-    newItem.offsetHeight;
-    newItem.style.opacity = 1;
-    newItem.classList.add('show');
-  } else {
-    newItem.classList.add('no-animation');
-  }
+    const historyBar = document.querySelector('.history-bar');
+    const newItem = document.createElement('div');
+    newItem.classList.add('history-item');
+    newItem.classList.add(colore);
+    newItem.textContent = numero;
+    const animationToggle = document.getElementById('animationToggle');
+    if (historyBar.firstChild) {
+        historyBar.insertBefore(newItem, historyBar.firstChild);
+    } else {
+        historyBar.appendChild(newItem);
+    }
+    // Rimuovi l'ultimo elemento se ce ne sono più di 20, senza animazione
+    if (historyBar.childElementCount > 20) {
+        const lastItem = historyBar.lastChild;
+        historyBar.removeChild(lastItem);
+    }
+    if (animationToggle.checked) {
+        // Forza il layout per garantire che l'animazione di comparsa sia applicata
+        newItem.offsetHeight;
+        newItem.style.opacity = 1;
+        newItem.classList.add('show');
+    } else {
+        newItem.classList.add('no-animation');
+    }
 }
 
 document.getElementById('spinButton').addEventListener('click', function() {
@@ -53,6 +50,14 @@ document.getElementById('spinButton').addEventListener('click', function() {
     const selectedElement = numbers[randomIndex];
     const rect = selectedElement.getBoundingClientRect();
     const wheelRect = document.querySelector('.roulette-wheel').getBoundingClientRect();
+
+    // Se le animazioni sono disattivate, non eseguire la transizione della palla
+    if (animationToggle.checked) {
+        ball.style.transition = 'all 2s ease-in-out'; // Aggiungi la transizione per la palla
+    } else {
+        ball.style.transition = 'none'; // Disabilita la transizione per la palla
+    }
+
     ball.style.top = `${rect.top - wheelRect.top + rect.height / 2}px`;
     ball.style.left = `${rect.left - wheelRect.left + rect.width / 2}px`;
 
@@ -77,9 +82,8 @@ document.getElementById('spinButton').addEventListener('click', function() {
     const selectedColor = (color === 'verde') ? 'green' : (color === 'rosso') ? 'red' : 'black';
     aggiornaHistoryBar(selectedNumber, selectedColor);
 
-    // Mostra il risultato
+    // Mostra il risultato con animazione verde
     result.textContent = `Numero estratto: ${selectedNumber} (${color}, ${parity}, ${range})`;
-
     if (animationToggle.checked) {
         // Aggiungi l'animazione di sfondo verde
         result.classList.add('flash-background');

@@ -3,25 +3,27 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #2c3e50;
+    background: linear-gradient(135deg, #2c3e50, #4ca1af);
     color: #ecf0f1;
     font-family: 'Roboto', sans-serif;
-    overflow: hidden; /* Evita scroll indesiderati */
+    overflow: hidden;
+    margin: 0;
 }
 
 .roulette-container {
     text-align: center;
+    position: relative;
 }
 
 .roulette-wheel {
     position: relative;
-    width: 400px; /* Ingrandito per più impatto visivo */
+    width: 400px;
     height: 400px;
     border: 15px solid #34495e;
     border-radius: 50%;
     margin: 0 auto;
     background: radial-gradient(circle, #27ae60, #2ecc71); /* Sfumatura di verde rilassante */
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7), inset 0 0 30px rgba(255, 255, 255, 0.1);
 }
 
 @keyframes spin {
@@ -39,6 +41,7 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     box-shadow: 0 0 20px rgba(255, 255, 0, 0.8);
+    transition: all 0.5s ease-in-out;
 }
 
 .numbers {
@@ -107,6 +110,7 @@ button:hover {
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
     font-size: 18px;
+    transition: all 0.3s ease-in-out;
 }
 
 .flash-green {
@@ -116,6 +120,17 @@ button:hover {
 @keyframes flash {
     0%, 100% { background-color: #34495e; } /* Colore di base */
     50% { background-color: #2ecc71; } /* Colore verde */
+}
+
+/* Animazione fade in e fade out per il risultato */
+.fade-in-out {
+    animation: fadeInOut 2s forwards;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; background-color: #34495e; }
+    50% { opacity: 1; background-color: #2ecc71; }
+    100% { opacity: 0; background-color: #34495e; }
 }
 
 /* Stili Toggle Switch */
